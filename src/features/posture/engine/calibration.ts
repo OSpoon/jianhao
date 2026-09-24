@@ -26,11 +26,14 @@ export class Calibrator {
   }
 
   progress(now: number): number {
-    return Math.min(1, (now - this.startedAt) / this.durationMs)
+    const timeProgress = (now - this.startedAt) / this.durationMs
+    const sampleProgress = this.samples.length / CALIBRATION_MIN_SAMPLES
+    return Math.min(1, timeProgress, sampleProgress)
   }
 
   isDone(now: number): boolean {
     return now - this.startedAt >= this.durationMs
+      && this.samples.length >= CALIBRATION_MIN_SAMPLES
   }
 
   /** Median is used so a blink or a brief head turn does not skew the baseline. */

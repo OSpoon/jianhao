@@ -386,6 +386,8 @@ export function usePostureMonitor() {
 
       if (nextMetrics) {
         absenceSince = null
+        if (!baseline.value && status.value === "running")
+          beginCalibration()
       }
       else {
         absenceSince ??= now

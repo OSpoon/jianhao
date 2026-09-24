@@ -31,7 +31,7 @@ export const messages = {
       recalibrate: "重新校准",
       mirror: "镜像预览",
       mirrorAria: "镜像摄像头预览",
-      uncalibrated: "尚未校准，请先校准姿势。",
+      uncalibrated: "保持自然坐姿，检测到画面后会自动校准。",
     },
     settings: {
       monitoringTitle: "监测设置",
