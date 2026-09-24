@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.1-beta.5
+
+[compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.4...v0.1.1-beta.5)
+
+### 🚀 Enhancements
+
+- 添加图标生成脚本和相关资源文件 ([2ce1452](https://github.com/OSpoon/jianhao/commit/2ce1452))
+
+### ❤️ Contributors
+
+- OSpoon ([@OSpoon](https://github.com/OSpoon))
+
 ## v0.1.1-beta.4
 
 [compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.3...v0.1.1-beta.4)
