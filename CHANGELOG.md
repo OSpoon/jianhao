@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.1.1-beta.8
+
+[compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.7...v0.1.1-beta.8)
+
+### 🚀 Enhancements
+
+- 更新应用更新进度显示，添加下载和安装进度条 ([1ace1d5](https://github.com/OSpoon/jianhao/commit/1ace1d5))
+- 更新校准进度计算逻辑，优化未校准提示信息 ([47212da](https://github.com/OSpoon/jianhao/commit/47212da))
+- Refactor camera components and introduce CameraMonitorView ([8101e3f](https://github.com/OSpoon/jianhao/commit/8101e3f))
+- 更新姿态警报样式，调整文本大小和行高 ([3085bf1](https://github.com/OSpoon/jianhao/commit/3085bf1))
+- 更新摄像头预览形状功能，优化相关组件和国际化文本 ([1561692](https://github.com/OSpoon/jianhao/commit/1561692))
+
+### 💅 Refactors
+
+- Streamline posture monitoring modules ([b7929c4](https://github.com/OSpoon/jianhao/commit/b7929c4))
+
+### ❤️ Contributors
+
+- OSpoon ([@OSpoon](https://github.com/OSpoon))
+
 ## v0.1.1-beta.7
 
 [compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.6...v0.1.1-beta.7)
