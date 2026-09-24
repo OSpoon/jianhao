@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.1-beta.4
+
+[compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.3...v0.1.1-beta.4)
+
+### 🩹 Fixes
+
+- Use Jianhao for bundle names ([0af26e5](https://github.com/OSpoon/jianhao/commit/0af26e5))
+
+### ❤️ Contributors
+
+- OSpoon ([@OSpoon](https://github.com/OSpoon))
+
 ## v0.1.1-beta.3
 
 [compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.2...v0.1.1-beta.3)
