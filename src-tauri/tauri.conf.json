@@ -41,7 +41,8 @@
     "longDescription": "渐好通过摄像头在本机实时分析坐姿；需要调整时，整个窗口会出现柔和的半透明红黄渐变提醒遮罩。摄像头画面不会上传。",
     "createUpdaterArtifacts": true,
     "macOS": {
-      "signingIdentity": "-"
+      "signingIdentity": "-",
+      "entitlements": "Entitlements.plist"
     },
     "targets": "all",
     "icon": [

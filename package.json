@@ -43,7 +43,8 @@
     "clippy": "cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features --locked -- -D warnings",
     "release": "bumpp",
     "version": "changelogen --output CHANGELOG.md",
-    "prepare": "simple-git-hooks"
+    "prepare": "simple-git-hooks",
+    "icons:generate": "node scripts/generate-icons.js"
   },
   "dependencies": {
     "@lucide/vue": "^1.47.0",
