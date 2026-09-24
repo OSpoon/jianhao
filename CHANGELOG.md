@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.1-beta.9
+
+[compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.8...v0.1.1-beta.9)
+
+### 🚀 Enhancements
+
+- 添加生成发行说明的工作流步骤 ([3b6baf7](https://github.com/OSpoon/jianhao/commit/3b6baf7))
+
+### ❤️ Contributors
+
+- OSpoon ([@OSpoon](https://github.com/OSpoon))
+
 ## v0.1.1-beta.8
 
 [compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.7...v0.1.1-beta.8)
