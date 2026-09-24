@@ -112,8 +112,8 @@ const showPostureAlert = computed(
       class="bg-black/45 text-white/90 backdrop-blur-md"
       :class="[
         props.frameShape === 'circle'
-          ? 'max-w-full rounded-2xl px-3 py-1 text-xs leading-4'
-          : 'max-w-[75%] rounded-full px-3 py-1 text-xs leading-5',
+          ? 'max-w-full rounded-2xl px-3 py-1 text-sm leading-5'
+          : 'max-w-[75%] rounded-full px-3 py-1 text-sm leading-5',
         isLiveAlert ? 'text-amber-100' : '',
       ]"
       role="status"
