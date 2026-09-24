@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { inject } from "vue"
-import AppearanceSettingsCard from "@/components/jianhao/AppearanceSettingsCard.vue"
-import DetectionRangeCard from "@/components/jianhao/DetectionRangeCard.vue"
+import CameraSettingsCard from "@/components/jianhao/CameraSettingsCard.vue"
 import DiagnosticsCard from "@/components/jianhao/DiagnosticsCard.vue"
-import MacPermissionsCard from "@/components/jianhao/MacPermissionsCard.vue"
-import ReminderSettingsCard from "@/components/jianhao/ReminderSettingsCard.vue"
+import MonitoringSettingsCard from "@/components/jianhao/MonitoringSettingsCard.vue"
 import { jianhaoAppKey } from "@/features/app/context"
 
 const app = inject(jianhaoAppKey)
@@ -15,35 +13,22 @@ if (!app) {
 </script>
 
 <template>
-  <div data-app-scroll class="min-h-0 flex-1 overflow-y-auto">
-    <section class="mx-auto flex w-full max-w-[460px] flex-col gap-4 px-4 py-4">
-      <AppearanceSettingsCard />
-      <DiagnosticsCard />
-      <DetectionRangeCard
-        :monitor="app.monitor"
-        :selected-issues="app.menuBarIssues.value"
-        :enabled-health-notifications="app.healthNotifications.value"
-        @toggle-menu-bar-issue="app.handleMenuBarIssue"
-        @toggle-health-notification="app.handleHealthNotification"
+  <div data-app-scroll class="min-h-0 flex-1 overflow-y-auto bg-background">
+    <section class="mx-auto flex w-full flex-col px-4 pb-5 pt-1">
+      <CameraSettingsCard
+        :frame-shape="app.cameraFrameShape.value"
+        :devices="app.cameraDevices.value"
+        :camera-device-id="app.cameraDeviceId.value"
+        @frame-shape-change="app.handleCameraFrameShape"
+        @camera-device-change="app.handleCameraDeviceChange"
       />
-      <ReminderSettingsCard
+      <MonitoringSettingsCard
         :sensitivity="app.monitor.sensitivity.value"
-        :sound-enabled="app.monitor.soundEnabled.value"
-        :autostart-enabled="app.autostartEnabled.value"
-        :autostart-busy="app.autostartBusy.value"
-        :autostart-error="app.autostartError.value"
+        :keep-screen-awake="app.monitor.keepScreenAwake.value"
         @sensitivity="app.handleSensitivity"
-        @sound="app.handleSound"
-        @autostart="app.handleAutostart"
+        @keep-screen-awake="app.monitor.setKeepScreenAwake"
       />
-      <MacPermissionsCard
-        :notification-busy="app.notificationPermissionBusy.value"
-        :notification-feedback="app.notificationFeedback.value"
-        :system-settings-feedback="app.systemSettingsFeedback.value"
-        @test-notification="app.handleTestNotification"
-        @open-camera-settings="app.handleOpenCameraSettings"
-        @open-notification-settings="app.handleOpenNotificationSettings"
-      />
+      <DiagnosticsCard />
     </section>
   </div>
 </template>

@@ -1,4 +1,4 @@
-/** Posture problems the demo can flag. */
+/** Posture and screen-health issues evaluated by the monitor. */
 export type Issue
   = | "tooClose"
     | "headDown"
@@ -24,8 +24,6 @@ export interface IssueRule {
 }
 
 export type Sensitivity = "low" | "normal" | "high"
-
-export type HealthIssue = Extract<Issue, "blink" | "sitting" | "lookAway">
 
 export interface Point {
   x: number

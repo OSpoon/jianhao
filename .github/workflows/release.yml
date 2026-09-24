@@ -75,8 +75,8 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tagName: v__VERSION__
-          releaseName: Jianhao v__VERSION__
-          releaseBody: Review the generated release notes and CHANGELOG.md entry before publishing.
+          releaseName: 渐好 v__VERSION__
+          releaseBody: 请在正式发布前检查自动生成的发行说明和 CHANGELOG.md。
           generateReleaseNotes: true
           releaseDraft: true
           prerelease: ${{ contains(github.ref_name, '-') }}

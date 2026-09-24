@@ -77,6 +77,15 @@ export function saveBaseline(baseline: Baseline): void {
   }
 }
 
+export function clearBaseline(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEY_BASELINE)
+  }
+  catch {
+    // Storage may be unavailable; the in-memory baseline is still cleared.
+  }
+}
+
 export function loadBaseline(): Baseline | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_BASELINE)

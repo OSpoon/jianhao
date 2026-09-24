@@ -24,9 +24,6 @@ export const CALIBRATION_MIN_SAMPLES = 10
 /** How long an alarm takes to reach full intensity. */
 export const SEVERITY_RAMP_MS = 8000
 
-export const BEEP_INTERVAL_MS = 2500
-export const NOTIFY_INTERVAL_MS = 30000
-
 /**
  * Flip to -1 if "头部俯仰" deviation goes negative when you look down. The sign depends on
  * MediaPipe's matrix layout and camera-space convention; see metrics.ts.

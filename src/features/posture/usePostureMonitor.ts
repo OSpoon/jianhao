@@ -1,26 +1,27 @@
+import type { StreamFrameResult } from "./engine/landmarkers"
 import type { Baseline, FrameMetrics, Issue, Sensitivity, Verdict } from "./engine/types"
+import { useDocumentVisibility, useUserMedia, useWakeLock } from "@vueuse/core"
 import { onUnmounted, ref, shallowRef, watch } from "vue"
 import { i18n } from "@/i18n"
 import { POSTURE_ISSUE_ORDER } from "./catalog"
 import { Calibrator, loadBaseline, saveBaseline } from "./engine/calibration"
-import { openCamera, releaseWakeLock, requestCameraProfile, requestWakeLock } from "./engine/camera"
+import { cameraConstraints } from "./engine/camera"
 import { BLINK_MIN_FPS, CALIBRATION_MS, RULES } from "./engine/config"
 import { PostureJudge } from "./engine/judge"
-import { Landmarkers } from "./engine/landmarkers"
+import { Landmarkers, TrackProcessorUnsupportedError } from "./engine/landmarkers"
 import { computeMetrics } from "./engine/metrics"
 import {
+  loadKeepScreenAwake,
   loadSensitivity,
-  loadSoundEnabled,
+  saveKeepScreenAwake,
   saveSensitivity,
-  saveSoundEnabled,
 } from "./engine/storage"
-import { usePostureAlerts } from "./usePostureAlerts"
 
 export type MonitorStatus = "idle" | "loading" | "calibrating" | "running" | "sleeping" | "paused" | "error"
 
-const ACTIVE_TICK_MS = 66
-const BACKGROUND_TICK_MS = 700
-const SLEEP_TICK_MS = 1000
+const ACTIVE_FRAME_INTERVAL_MS = 66
+const BACKGROUND_FRAME_INTERVAL_MS = 700
+const PRESENCE_FRAME_INTERVAL_MS = 1000
 const ABSENCE_SLEEP_MS = 60_000
 const ISSUE_ORDER: readonly Issue[] = [
   ...POSTURE_ISSUE_ORDER,
@@ -42,13 +43,15 @@ function describeVerdict(verdict: Verdict, metrics: FrameMetrics | null): string
   if (!verdict.alarm)
     return metrics ? t("runtime.normal") : t("runtime.notDetected")
   const active = ISSUE_ORDER.filter(issue => verdict.issues[issue]?.active)
-  const separator = i18n.global.locale.value === "zh-CN" ? "、" : ", "
   return active.length > 0
-    ? t("runtime.adjust", { issues: active.map(issue => t(`issue.${issue}`)).join(separator) })
+    ? t("runtime.adjust", { issues: active.map(issue => t(`issue.${issue}`)).join("、") })
     : t("runtime.adjustPosture")
 }
 
 export function usePostureMonitor() {
+  const documentVisibility = useDocumentVisibility()
+  const screenWakeLock = useWakeLock()
+  const cameraMedia = useUserMedia({ enabled: false, autoSwitch: false })
   const status = ref<MonitorStatus>("idle")
   const message = ref(t("runtime.ready"))
   const fps = ref(0)
@@ -57,51 +60,92 @@ export function usePostureMonitor() {
   const verdict = shallowRef<Verdict | null>(null)
   const baseline = shallowRef<Baseline | null>(loadBaseline())
   const sensitivity = ref<Sensitivity>(loadSensitivity())
-  const soundEnabled = ref(loadSoundEnabled())
-  const alerts = usePostureAlerts(soundEnabled)
-  const { alertLevel, alertMessage } = alerts
+  const keepScreenAwake = ref(loadKeepScreenAwake())
   const calibrationProgress = ref(0)
 
   let landmarkers: Landmarkers | null = null
   let judge: PostureJudge | null = baseline.value ? createJudge(baseline.value) : null
   let calibrator: Calibrator | null = null
   let stream: MediaStream | null = null
-  let activeVideo: HTMLVideoElement | null = null
   let previewVideo: HTMLVideoElement | null = null
-  let timer: number | null = null
   let runToken = 0
   let frameCount = 0
   let fpsWindowStart = performance.now()
   let currentFps = 0
   let absenceSince: number | null = null
+  let wakeLockGeneration = 0
+  let pendingWakeLockRequest: Promise<void> | null = null
+  let pendingWakeLockGeneration: number | null = null
+  // useUserMedia owns one stream; serialize requests so a canceled permission prompt cannot
+  // overwrite a later capture when it eventually resolves.
+  let cameraStartQueue: Promise<void> = Promise.resolve()
 
-  watch(i18n.global.locale, () => {
-    if (verdict.value) {
-      message.value = describeVerdict(verdict.value, metrics.value)
+  function acquireCamera(deviceId: string, token: number): Promise<MediaStream | null> {
+    const request = cameraStartQueue.then(async () => {
+      if (token !== runToken)
+        return null
+      if (!cameraMedia.isSupported.value)
+        throw new Error("This browser does not support camera access (getUserMedia).")
+
+      cameraMedia.constraints.value = cameraConstraints(deviceId)
+      const openedStream = await cameraMedia.start()
+      if (token !== runToken) {
+        cameraMedia.stop()
+        openedStream?.getTracks().forEach(track => track.stop())
+        return null
+      }
+      return openedStream ?? null
+    })
+    cameraStartQueue = request.then(() => undefined, () => undefined)
+    return request
+  }
+
+  async function requestWakeLock(): Promise<void> {
+    if (screenWakeLock.isActive.value)
       return
+
+    const generation = wakeLockGeneration
+    if (pendingWakeLockRequest) {
+      if (pendingWakeLockGeneration === generation)
+        return pendingWakeLockRequest
+      return pendingWakeLockRequest.then(() => {
+        if (generation === wakeLockGeneration && !screenWakeLock.isActive.value)
+          return requestWakeLock()
+      })
     }
-    if (status.value === "idle") {
-      message.value = t("runtime.ready")
+
+    const request = Promise.resolve().then(async () => {
+      try {
+        await screenWakeLock.request("screen")
+        if (generation !== wakeLockGeneration)
+          await screenWakeLock.release()
+      }
+      catch {
+        // Wake lock is optional; denied or unsupported is fine.
+      }
+    }).finally(() => {
+      if (pendingWakeLockRequest === request) {
+        pendingWakeLockRequest = null
+        pendingWakeLockGeneration = null
+      }
+    })
+    pendingWakeLockRequest = request
+    pendingWakeLockGeneration = generation
+    return request
+  }
+
+  async function releaseWakeLock(): Promise<void> {
+    wakeLockGeneration += 1
+    try {
+      await screenWakeLock.release()
     }
-    else if (status.value === "loading") {
-      message.value = delegate.value
-        ? t("runtime.loadingModel", { delegate: delegate.value })
-        : t("runtime.openingCamera")
+    catch {
+      // The browser may already have released the lock.
     }
-    else if (status.value === "calibrating") {
-      message.value = t("runtime.calibrating")
-    }
-    else if (status.value === "paused") {
-      message.value = t("runtime.pause")
-    }
-    else if (status.value === "sleeping") {
-      message.value = t("runtime.awaySleep")
-    }
-  })
+  }
 
   function createJudge(nextBaseline: Baseline): PostureJudge {
-    const nextJudge = new PostureJudge(nextBaseline, RULES, sensitivity.value)
-    return nextJudge
+    return new PostureJudge(nextBaseline, RULES, sensitivity.value)
   }
 
   function isRunning(): boolean {
@@ -129,41 +173,59 @@ export function usePostureMonitor() {
     })
   }
 
-  async function start(video: HTMLVideoElement): Promise<void> {
-    if (timer !== null || status.value === "loading")
+  function frameInterval(): number {
+    if (status.value === "sleeping")
+      return PRESENCE_FRAME_INTERVAL_MS
+    return documentVisibility.value !== "visible" ? BACKGROUND_FRAME_INTERVAL_MS : ACTIVE_FRAME_INTERVAL_MS
+  }
+
+  function updateFrameInterval(): void {
+    landmarkers?.setFrameInterval(frameInterval())
+  }
+
+  async function start(cameraDeviceId = ""): Promise<void> {
+    if (status.value === "loading")
       return
 
     const token = ++runToken
     let openedStream: MediaStream | null = null
-    alerts.resumeAudio()
     delegate.value = null
     status.value = "loading"
     message.value = t("runtime.openingCamera")
 
     try {
-      activeVideo = video
-      openedStream = await openCamera()
-      if (token !== runToken) {
-        openedStream.getTracks().forEach(track => track.stop())
-        return
-      }
-      stream = openedStream
-      video.srcObject = stream
-      await video.play()
+      await landmarkers?.stopTrack()
       if (token !== runToken)
         return
-      if (previewVideo) {
-        previewVideo.srcObject = stream
-        void previewVideo.play().catch(() => undefined)
+
+      openedStream = await acquireCamera(cameraDeviceId, token)
+      if (token !== runToken) {
+        openedStream?.getTracks().forEach(track => track.stop())
+        return
       }
+      if (!openedStream)
+        throw new Error("The selected camera did not provide a video stream")
+
+      const captureTrack = openedStream.getVideoTracks()[0]
+      if (!captureTrack)
+        throw new Error("The selected camera did not provide a video track")
+      const previewTrack = captureTrack.clone()
+      stream = new MediaStream([previewTrack])
+      attachPreview(previewVideo)
 
       if (!landmarkers) {
-        landmarkers = new Landmarkers((attempt) => {
+        const onAttempt = (attempt: "GPU" | "CPU") => {
           if (status.value !== "loading")
             return
           delegate.value = attempt
           message.value = t("runtime.loadingModel", { delegate: attempt })
-        })
+        }
+        const onStreamFrame = (frame: StreamFrameResult) => handleStreamFrame(frame, runToken)
+        const onStreamError = (error: Error) => {
+          if (isRunning())
+            failDetection(error)
+        }
+        landmarkers = new Landmarkers(onAttempt, onStreamFrame, onStreamError)
       }
 
       const activeLandmarkers = landmarkers
@@ -176,49 +238,62 @@ export function usePostureMonitor() {
           landmarkers = null
         throw error
       }
-      if (token !== runToken)
+      if (token !== runToken) {
+        openedStream.getTracks().forEach(track => track.stop())
+        openedStream = null
         return
+      }
 
-      await requestWakeLock()
-      if (token !== runToken)
+      if (keepScreenAwake.value)
+        await requestWakeLock()
+      if (token !== runToken) {
+        await releaseWakeLock()
+        openedStream.getTracks().forEach(track => track.stop())
+        openedStream = null
         return
+      }
+
       status.value = "running"
-      timer = window.setTimeout(() => void runScheduledTick(token), ACTIVE_TICK_MS)
+      updateFrameInterval()
       message.value = baseline.value ? t("runtime.monitoring") : t("runtime.calibrateFirst")
+      const startTrackPromise = activeLandmarkers.startTrack(captureTrack)
+      // The original track is now handed to the worker; only the preview clone remains here.
+      openedStream = null
+      await startTrackPromise
     }
     catch (error) {
       if (token !== runToken) {
         openedStream?.getTracks().forEach(track => track.stop())
         return
       }
+      openedStream?.getTracks().forEach(track => track.stop())
+      cameraMedia.stop()
       stream?.getTracks().forEach(track => track.stop())
       stream = null
-      activeVideo = null
-      video.pause()
-      video.srcObject = null
-      if (previewVideo)
+      if (previewVideo) {
+        previewVideo.pause()
         previewVideo.srcObject = null
+      }
+      void releaseWakeLock()
+      landmarkers?.close()
+      landmarkers = null
       status.value = "error"
-      message.value = t("runtime.error", { error: errorMessage(error) })
+      message.value = error instanceof TrackProcessorUnsupportedError
+        ? t("runtime.trackProcessorUnsupported")
+        : t("runtime.error", { error: errorMessage(error) })
     }
   }
 
-  function pause(video: HTMLVideoElement | null = activeVideo): void {
+  function pause(): void {
     runToken += 1
-    if (timer !== null)
-      window.clearTimeout(timer)
-    timer = null
+    void landmarkers?.stopTrack()
     void releaseWakeLock()
+    cameraMedia.stop()
     calibrator = null
     calibrationProgress.value = 0
     absenceSince = null
-    alerts.resetForPause()
     stream?.getTracks().forEach(track => track.stop())
     stream = null
-    activeVideo = null
-    video?.pause()
-    if (video)
-      video.srcObject = null
     previewVideo?.pause()
     if (previewVideo)
       previewVideo.srcObject = null
@@ -228,11 +303,11 @@ export function usePostureMonitor() {
     message.value = t("runtime.pause")
   }
 
-  function toggle(video: HTMLVideoElement | null): void {
+  function toggle(cameraDeviceId = ""): void {
     if (isRunning())
-      pause(video)
-    else if (video)
-      void start(video)
+      pause()
+    else if (status.value !== "loading")
+      void start(cameraDeviceId)
   }
 
   function beginCalibration(): void {
@@ -240,7 +315,6 @@ export function usePostureMonitor() {
       return
     calibrator = new Calibrator(performance.now(), CALIBRATION_MS)
     calibrationProgress.value = 0
-    alertLevel.value = 0
     status.value = "calibrating"
     message.value = t("runtime.calibrating")
   }
@@ -251,87 +325,61 @@ export function usePostureMonitor() {
     judge?.setSensitivity(value)
   }
 
-  function setSoundEnabled(enabled: boolean): void {
-    soundEnabled.value = enabled
-    saveSoundEnabled(enabled)
-    if (enabled)
-      alerts.resumeAudio()
-    else alerts.handleSoundDisabled()
-  }
-
-  function nextTickDelay(): number {
-    if (status.value === "sleeping")
-      return SLEEP_TICK_MS
-    return document.hidden ? BACKGROUND_TICK_MS : ACTIVE_TICK_MS
-  }
-
-  async function runScheduledTick(token: number): Promise<void> {
-    if (token !== runToken)
-      return
-    timer = null
-    if (activeVideo)
-      await tick(activeVideo, token)
-    if (token === runToken && stream && status.value !== "paused" && status.value !== "error") {
-      timer = window.setTimeout(() => void runScheduledTick(token), nextTickDelay())
+  function setKeepScreenAwake(enabled: boolean): void {
+    keepScreenAwake.value = enabled
+    saveKeepScreenAwake(enabled)
+    if (!enabled) {
+      void releaseWakeLock()
+    }
+    else if (isRunning() && status.value !== "sleeping") {
+      void requestWakeLock()
     }
   }
 
-  async function tick(video: HTMLVideoElement, token: number): Promise<void> {
-    if (!landmarkers || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA)
+  async function handleStreamFrame(frame: StreamFrameResult, token: number): Promise<void> {
+    const activeLandmarkers = landmarkers
+    if (token !== runToken || !activeLandmarkers || !isRunning())
       return
 
-    const activeLandmarkers = landmarkers
-    let frame: ImageBitmap | null = null
+    // Use the window's clock for calibration and reminders; worker performance
+    // clocks can have a different time origin from the document.
+    const now = performance.now()
     try {
-      frame = await createImageBitmap(video)
-      if (token !== runToken || activeLandmarkers !== landmarkers || !isRunning())
-        return
-
-      const now = performance.now()
-
-      if (status.value === "sleeping") {
-        const present = await activeLandmarkers.detectPresence(frame, now)
-        frame = null
-        if (token !== runToken || activeLandmarkers !== landmarkers || !isRunning())
+      if (frame.mode === "presence") {
+        if (status.value !== "sleeping" || !frame.present)
           return
 
-        if (present) {
-          const [, , resumedDelegate] = await Promise.all([
-            requestCameraProfile(stream, "monitoring"),
-            requestWakeLock(),
-            activeLandmarkers.resumeFullMode(),
-          ])
-          if (token !== runToken || activeLandmarkers !== landmarkers)
-            return
+        const resumedDelegate = await activeLandmarkers.resumeFullMode()
+        if (keepScreenAwake.value)
+          await requestWakeLock()
+        if (token !== runToken || activeLandmarkers !== landmarkers || !isRunning()) {
+          await releaseWakeLock()
+          return
+        }
 
-          absenceSince = null
-          delegate.value = resumedDelegate
-          frameCount = 0
-          currentFps = 0
-          fps.value = 0
-          fpsWindowStart = performance.now()
-          status.value = "running"
-          message.value = baseline.value ? t("runtime.returned") : t("runtime.calibrateFirst")
-          if (previewVideo && stream) {
-            previewVideo.srcObject = stream
-            void previewVideo.play().catch(() => undefined)
-          }
+        absenceSince = null
+        delegate.value = resumedDelegate
+        frameCount = 0
+        currentFps = 0
+        fps.value = 0
+        fpsWindowStart = performance.now()
+        status.value = "running"
+        updateFrameInterval()
+        message.value = baseline.value ? t("runtime.returned") : t("runtime.calibrateFirst")
+        if (previewVideo && stream) {
+          previewVideo.srcObject = stream
+          void previewVideo.play().catch(() => undefined)
         }
         return
       }
 
-      const width = frame.width
-      const height = frame.height
-      const detectionPromise = activeLandmarkers.detect(frame, now)
-      frame = null
-      const raw = await detectionPromise
-      if (token !== runToken || activeLandmarkers !== landmarkers || !isRunning())
+      if ((status.value !== "running" && status.value !== "calibrating") || !frame.detection)
         return
 
-      const nextMetrics = computeMetrics(raw, width, height)
+      const nextMetrics = computeMetrics(frame.detection, frame.width, frame.height)
       trackFps(now)
 
-      if (nextMetrics && (document.hidden || currentFps < BLINK_MIN_FPS)) {
+      if (nextMetrics && (documentVisibility.value !== "visible" || currentFps < BLINK_MIN_FPS)) {
         nextMetrics.eyeClosed = null
       }
       metrics.value = nextMetrics
@@ -347,15 +395,14 @@ export function usePostureMonitor() {
           calibrator = null
           calibrationProgress.value = 0
           verdict.value = null
-          alerts.updateAlert(null, now)
           metrics.value = null
           fps.value = 0
           currentFps = 0
+          updateFrameInterval()
           previewVideo?.pause()
           if (previewVideo)
             previewVideo.srcObject = null
-          const [, , lowPowerDelegate] = await Promise.all([
-            requestCameraProfile(stream, "presence"),
+          const [, lowPowerDelegate] = await Promise.all([
             releaseWakeLock(),
             activeLandmarkers.enterLowPowerMode(),
           ])
@@ -376,7 +423,6 @@ export function usePostureMonitor() {
 
       const nextVerdict = judge?.update(nextMetrics, now) ?? null
       verdict.value = nextVerdict
-      alerts.updateAlert(nextVerdict, now)
       if (nextVerdict)
         message.value = describeVerdict(nextVerdict, nextMetrics)
     }
@@ -384,31 +430,20 @@ export function usePostureMonitor() {
       if (token === runToken)
         failDetection(error)
     }
-    finally {
-      frame?.close()
-    }
   }
 
   function failDetection(error: unknown): void {
     runToken += 1
-    if (timer !== null)
-      window.clearTimeout(timer)
-    timer = null
     void releaseWakeLock()
     landmarkers?.close()
     landmarkers = null
+    cameraMedia.stop()
     stream?.getTracks().forEach(track => track.stop())
     stream = null
-    activeVideo?.pause()
-    if (activeVideo)
-      activeVideo.srcObject = null
-    activeVideo = null
     previewVideo?.pause()
     if (previewVideo)
       previewVideo.srcObject = null
     calibrator = null
-    alertLevel.value = 0
-    alertMessage.value = ""
     status.value = "error"
     message.value = t("runtime.error", { error: errorMessage(error) })
   }
@@ -431,7 +466,6 @@ export function usePostureMonitor() {
     judge = createJudge(result)
     status.value = "running"
     message.value = t("runtime.calibrationComplete")
-    alerts.updateAlert(null, performance.now())
   }
 
   function trackFps(now: number): void {
@@ -444,20 +478,18 @@ export function usePostureMonitor() {
     fpsWindowStart = now
   }
 
+  watch(documentVisibility, () => updateFrameInterval())
   onUnmounted(() => {
     runToken += 1
-    if (timer !== null)
-      window.clearTimeout(timer)
+    // Invalidate an in-flight request; useWakeLock releases its sentinel with the scope.
+    void releaseWakeLock()
+    void landmarkers?.stopTrack()
     stream?.getTracks().forEach(track => track.stop())
-    activeVideo?.pause()
-    activeVideo?.srcObject && (activeVideo.srcObject = null)
     previewVideo?.pause()
     if (previewVideo)
       previewVideo.srcObject = null
     landmarkers?.close()
     landmarkers = null
-    void releaseWakeLock()
-    void alerts.dispose()
   })
 
   return {
@@ -469,7 +501,6 @@ export function usePostureMonitor() {
     verdict,
     baseline,
     sensitivity,
-    soundEnabled,
     calibrationProgress,
     isRunning,
     start,
@@ -478,11 +509,7 @@ export function usePostureMonitor() {
     toggle,
     beginCalibration,
     setSensitivity,
-    setSoundEnabled,
-    snoozeAlert: alerts.snoozeAlert,
-    dismissAlert: alerts.dismissAlert,
-    alertLevel,
-    alertMessage,
-    issueOrder: ISSUE_ORDER,
+    keepScreenAwake,
+    setKeepScreenAwake,
   }
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Jianhao",
+  "productName": "渐好",
   "version": "0.1.0",
   "identifier": "com.osp.jianhao",
   "build": {
@@ -10,18 +10,20 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
-        "title": "渐好 · Jianhao",
-        "width": 460,
-        "height": 760,
-        "minWidth": 460,
-        "maxWidth": 460,
-        "minHeight": 760,
-        "maxHeight": 760,
+        "title": "渐好 · 坐姿提醒",
+        "width": 360,
+        "height": 203,
+        "minWidth": 210,
+        "minHeight": 180,
         "resizable": false,
-        "visible": false,
-        "skipTaskbar": true
+        "visible": true,
+        "decorations": false,
+        "shadow": false,
+        "transparent": true,
+        "alwaysOnTop": false
       }
     ],
     "security": {
@@ -30,6 +32,13 @@
   },
   "bundle": {
     "active": true,
+    "publisher": "OSpoon",
+    "copyright": "Copyright (c) 2026 OSpoon",
+    "license": "MIT",
+    "licenseFile": "../LICENSE",
+    "category": "Productivity",
+    "shortDescription": "本机运行的实时坐姿提醒桌面应用",
+    "longDescription": "渐好通过摄像头在本机实时分析坐姿；需要调整时，整个窗口会出现柔和的半透明红黄渐变提醒遮罩。摄像头画面不会上传。",
     "createUpdaterArtifacts": true,
     "macOS": {
       "signingIdentity": "-"
@@ -45,7 +54,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDMwQzZFOTkyRkU4MDQxRUEKUldUcVFZRCtrdW5HTUdTNk1MSTZVcDBGaXk1cml3Y1pKV3lnZTVkelBHYmV3bVhGajJGVkhOQWUK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDM2MEY1Q0M4MTRGMTc2OTIKUldTU2R2RVV5RndQTnYvZFkyeTFCOGtBSHhMeGR6d2xpQVdFcUdZdzI2V3pTM3FzZkwwMHdwcy8K",
       "endpoints": [
         "https://github.com/OSpoon/jianhao/releases/latest/download/latest.json"
       ]

@@ -4,8 +4,10 @@
 <dict>
   <key>CFBundleDisplayName</key>
   <string>渐好</string>
-  <key>LSUIElement</key>
-  <true/>
+  <key>CFBundleName</key>
+  <string>渐好</string>
+  <key>NSHumanReadableCopyright</key>
+  <string>Copyright (c) 2026 OSpoon</string>
   <key>NSCameraUsageDescription</key>
   <string>渐好需要使用摄像头来在本机检测坐姿，画面不会上传。</string>
 </dict>
