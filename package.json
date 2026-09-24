@@ -44,7 +44,7 @@
     "release": "bumpp",
     "version": "changelogen --output CHANGELOG.md",
     "prepare": "simple-git-hooks",
-    "icons:generate": "tauri icon src/assets/brand-mark.png"
+    "icons:generate": "node scripts/generate-icons.js"
   },
   "dependencies": {
     "@lucide/vue": "^1.47.0",

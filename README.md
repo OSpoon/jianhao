@@ -75,6 +75,8 @@ pnpm tauri build
 
 `pnpm format` 会自动格式化前端和 Rust 代码；`pnpm format:check` 用于检查格式。Linux CI 还需要安装 WebKitGTK 等 Tauri 系统依赖，详见 [CI workflow](./.github/workflows/ci.yml)。
 
+修改 Logo 后运行 `pnpm icons:generate`，从 `src/assets/brand-mark.png` 重新生成应用图标。
+
 ### 发布
 
 #### 配置应用内更新签名
