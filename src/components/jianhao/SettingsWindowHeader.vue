@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, Minus, Pin, X } from "@lucide/vue"
+import { House, Minus, Pin, X } from "@lucide/vue"
 import { useI18n } from "vue-i18n"
 import { RouterLink } from "vue-router"
 import { Button } from "@/components/ui/button"
@@ -76,10 +76,13 @@ const { t } = useI18n()
       >
         <X />
       </Button>
-      <Button as-child variant="ghost" size="sm" class="rounded-full hover:bg-foreground/10 hover:text-foreground">
-        <RouterLink to="/" :aria-label="t('nav.backHome')">
-          <ArrowLeft />
-          {{ t("nav.back") }}
+      <Button as-child variant="ghost" size="icon-sm" class="rounded-full hover:bg-foreground/10 hover:text-foreground">
+        <RouterLink
+          to="/"
+          :aria-label="t('nav.backHome')"
+          :title="t('nav.backHome')"
+        >
+          <House />
         </RouterLink>
       </Button>
     </div>

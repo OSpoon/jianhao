@@ -14,11 +14,12 @@ const canvas = ref<HTMLCanvasElement | null>(null)
 const appState = useJianhaoApp(previewVideo, canvas)
 const route = useRoute()
 const isCircleCameraWindow = computed(
-  () => route.name !== "settings" && appState.cameraFrameShape.value === "circle",
+  () =>
+    route.name !== "settings" && appState.cameraFrameShape.value === "circle",
 )
 const windowSize = computed(() =>
   route.name === "settings"
-    ? { width: 360, height: 460 }
+    ? { width: 360, height: 420 }
     : appState.cameraFrameShape.value === "circle"
       ? { width: 210, height: 210 }
       : { width: 360, height: 210 },
@@ -83,6 +84,7 @@ provide(jianhaoAppKey, appState)
       :always-on-top="appState.alwaysOnTop.value"
       :window-control-feedback="appState.windowControlFeedback.value"
       @toggle-always-on-top="appState.handleAlwaysOnTop"
+      @frame-shape-change="appState.handleCameraFrameShape"
       @minimize-window="appState.handleMinimizeWindow"
       @close-window="appState.handleCloseWindow"
     />
