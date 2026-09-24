@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.1-beta.10
+
+[compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.9...v0.1.1-beta.10)
+
+### 💅 Refactors
+
+- 移除保持屏幕唤醒功能，优化监测设置和相关组件 ([3fe084d](https://github.com/OSpoon/jianhao/commit/3fe084d))
+
+### ❤️ Contributors
+
+- OSpoon ([@OSpoon](https://github.com/OSpoon))
+
 ## v0.1.1-beta.9
 
 [compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.8...v0.1.1-beta.9)
