@@ -80,11 +80,12 @@
     "vue-tsc": "^3.3.5"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm lint-staged",
+    "pre-commit": "pnpm lint-staged && pnpm format:check",
     "commit-msg": "pnpm exec commitlint --edit \"$1\""
   },
   "lint-staged": {
     "*.{js,mjs,ts,vue}": "eslint --fix",
+    "*.{json,toml}": "eslint --fix",
     "*.rs": "rustfmt --edition 2021"
   }
 }
