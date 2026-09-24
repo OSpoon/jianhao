@@ -56,6 +56,15 @@ const { t } = useI18n()
       >
         <Pin :class="props.alwaysOnTop ? 'fill-current' : ''" />
       </Button>
+      <Button as-child variant="ghost" size="icon-sm" class="rounded-full hover:bg-foreground/10 hover:text-foreground">
+        <RouterLink
+          to="/"
+          :aria-label="t('nav.backHome')"
+          :title="t('nav.backHome')"
+        >
+          <House />
+        </RouterLink>
+      </Button>
       <Button
         variant="ghost"
         size="icon-xs"
@@ -75,15 +84,6 @@ const { t } = useI18n()
         @click="emit('closeWindow')"
       >
         <X />
-      </Button>
-      <Button as-child variant="ghost" size="icon-sm" class="rounded-full hover:bg-foreground/10 hover:text-foreground">
-        <RouterLink
-          to="/"
-          :aria-label="t('nav.backHome')"
-          :title="t('nav.backHome')"
-        >
-          <House />
-        </RouterLink>
       </Button>
     </div>
   </header>

@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import type { Sensitivity } from "@/modules/posture/engine/types"
 import { useI18n } from "vue-i18n"
-import { Switch } from "@/components/ui/switch"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
 const props = defineProps<{
   sensitivity: Sensitivity
-  keepScreenAwake: boolean
 }>()
 const emit = defineEmits<{
   sensitivity: [value: Sensitivity]
-  keepScreenAwake: [enabled: boolean]
 }>()
 
 const { t } = useI18n()
@@ -52,21 +49,6 @@ function handleSensitivity(value: unknown): void {
             {{ t(`settings.${option}`) }}
           </ToggleGroupItem>
         </ToggleGroup>
-      </div>
-      <div
-        class="flex items-start justify-between gap-3 border-t border-border/60 pt-3"
-      >
-        <div class="grid min-w-0 gap-1">
-          <span class="text-[13px] font-medium">{{
-            t("settings.keepScreenAwake")
-          }}</span>
-        </div>
-        <Switch
-          class="mt-0.5 shrink-0"
-          :checked="props.keepScreenAwake"
-          :aria-label="t('settings.keepScreenAwake')"
-          @update:checked="emit('keepScreenAwake', $event)"
-        />
       </div>
     </div>
   </section>

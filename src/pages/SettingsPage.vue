@@ -22,9 +22,7 @@ if (!app) {
       />
       <MonitoringSettingsCard
         :sensitivity="app.monitor.sensitivity.value"
-        :keep-screen-awake="app.monitor.keepScreenAwake.value"
         @sensitivity="app.handleSensitivity"
-        @keep-screen-awake="app.monitor.setKeepScreenAwake"
       />
       <DiagnosticsCard />
     </section>

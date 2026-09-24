@@ -10,7 +10,6 @@ const KEYS = {
   cameraDeviceId: "jianhao.camera-device-id.v1",
   cameraFrameShape: "jianhao.camera-frame-shape.v1",
   alwaysOnTop: "jianhao.window-always-on-top.v1",
-  keepScreenAwake: "jianhao.keep-screen-awake.v1",
 } as const
 
 export type CameraFrameShape = "rounded" | "circle"
@@ -24,12 +23,13 @@ function read(key: string): string | null {
   }
 }
 
-function write(key: string, value: string): void {
+function write(key: string, value: string): boolean {
   try {
     localStorage.setItem(key, value)
+    return true
   }
   catch {
-    // Non-fatal.
+    return false
   }
 }
 
@@ -75,12 +75,4 @@ export function loadAlwaysOnTop(): boolean {
 
 export function saveAlwaysOnTop(enabled: boolean): void {
   write(KEYS.alwaysOnTop, enabled ? "on" : "off")
-}
-
-export function loadKeepScreenAwake(): boolean {
-  return read(KEYS.keepScreenAwake) !== "off"
-}
-
-export function saveKeepScreenAwake(enabled: boolean): void {
-  write(KEYS.keepScreenAwake, enabled ? "on" : "off")
 }

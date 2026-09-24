@@ -19,7 +19,7 @@ const isCircleCameraWindow = computed(
 )
 const windowSize = computed(() =>
   route.name === "settings"
-    ? { width: 360, height: 420 }
+    ? { width: 360, height: 360 }
     : appState.cameraFrameShape.value === "circle"
       ? { width: 210, height: 210 }
       : { width: 360, height: 210 },

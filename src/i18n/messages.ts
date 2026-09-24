@@ -32,7 +32,6 @@ export const messages = {
     settings: {
       monitoringTitle: "监测设置",
       sensitivity: "检测灵敏度",
-      keepScreenAwake: "保持屏幕唤醒",
       low: "低",
       normal: "标准",
       high: "高",
