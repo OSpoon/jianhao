@@ -13,8 +13,30 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  release-notes:
+    name: Generate release notes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      body: ${{ steps.notes.outputs.body }}
+    steps:
+      - name: Generate release notes
+        id: notes
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const tagName = context.ref.replace(/^refs\/tags\//, "")
+            const { data } = await github.rest.repos.generateReleaseNotes({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tagName,
+            })
+            core.setOutput("body", data.body)
+
   publish-tauri:
     name: Build ${{ matrix.target }}
+    needs: release-notes
     permissions:
       contents: write
     strategy:
@@ -77,8 +99,8 @@ jobs:
         with:
           tagName: v__VERSION__
           releaseName: 渐好 v__VERSION__
-          releaseBody: 请在正式发布前检查自动生成的发行说明和 CHANGELOG.md。
-          generateReleaseNotes: true
+          releaseBody: ${{ needs.release-notes.outputs.body }}
+          generateReleaseNotes: false
           releaseDraft: true
           prerelease: ${{ contains(github.ref_name, '-') }}
           uploadUpdaterJson: true
