@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { CameraFrameShape } from "@/features/posture/engine/storage"
-import type { MonitorStatus } from "@/features/posture/usePostureMonitor"
+import type { CameraFrameShape } from "@/modules/posture/engine/storage"
+import type { MonitorStatus } from "@/modules/posture/usePostureMonitor"
 import { Camera, Play } from "@lucide/vue"
 import { usePreferredReducedMotion } from "@vueuse/core"
 import { computed } from "vue"
@@ -35,9 +35,7 @@ const liveMessage = computed(() => {
 })
 
 const isLiveAlert = computed(
-  () =>
-    props.status === "error"
-    || liveMessage.value.startsWith(t("runtime.adjust", { issues: "" }).trim()),
+  () => props.status === "error" || props.hasActiveAlert,
 )
 
 const showPostureAlert = computed(
@@ -91,8 +89,6 @@ const showPostureAlert = computed(
         :class="props.frameShape === 'circle'
           ? 'h-9 gap-1.5 px-4 text-xs'
           : 'h-10 gap-2 px-5 text-sm'"
-        :disabled="props.isLoading"
-        :aria-busy="props.isLoading"
         @click="emit('start')"
       >
         <Play class="size-4 fill-current" />

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CameraFrameShape } from "@/features/posture/engine/storage"
+import type { CameraFrameShape } from "@/modules/posture/engine/storage"
 import { computed } from "vue"
 import { useRoute } from "vue-router"
 import CameraWindowToolbar from "@/components/jianhao/CameraWindowToolbar.vue"

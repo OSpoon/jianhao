@@ -54,8 +54,6 @@ export function usePostureMonitor() {
   const cameraMedia = useUserMedia({ enabled: false, autoSwitch: false })
   const status = ref<MonitorStatus>("idle")
   const message = ref(t("runtime.ready"))
-  const fps = ref(0)
-  const delegate = ref<"GPU" | "CPU" | null>(null)
   const metrics = shallowRef<FrameMetrics | null>(null)
   const verdict = shallowRef<Verdict | null>(null)
   const baseline = shallowRef<Baseline | null>(loadBaseline())
@@ -189,7 +187,6 @@ export function usePostureMonitor() {
 
     const token = ++runToken
     let openedStream: MediaStream | null = null
-    delegate.value = null
     status.value = "loading"
     message.value = t("runtime.openingCamera")
 
@@ -217,7 +214,6 @@ export function usePostureMonitor() {
         const onAttempt = (attempt: "GPU" | "CPU") => {
           if (status.value !== "loading")
             return
-          delegate.value = attempt
           message.value = t("runtime.loadingModel", { delegate: attempt })
         }
         const onStreamFrame = (frame: StreamFrameResult) => handleStreamFrame(frame, runToken)
@@ -230,7 +226,7 @@ export function usePostureMonitor() {
 
       const activeLandmarkers = landmarkers
       try {
-        delegate.value = await activeLandmarkers.load()
+        await activeLandmarkers.load()
       }
       catch (error) {
         activeLandmarkers.close()
@@ -349,7 +345,7 @@ export function usePostureMonitor() {
         if (status.value !== "sleeping" || !frame.present)
           return
 
-        const resumedDelegate = await activeLandmarkers.resumeFullMode()
+        await activeLandmarkers.resumeFullMode()
         if (keepScreenAwake.value)
           await requestWakeLock()
         if (token !== runToken || activeLandmarkers !== landmarkers || !isRunning()) {
@@ -358,10 +354,8 @@ export function usePostureMonitor() {
         }
 
         absenceSince = null
-        delegate.value = resumedDelegate
         frameCount = 0
         currentFps = 0
-        fps.value = 0
         fpsWindowStart = performance.now()
         status.value = "running"
         updateFrameInterval()
@@ -398,19 +392,17 @@ export function usePostureMonitor() {
           calibrationProgress.value = 0
           verdict.value = null
           metrics.value = null
-          fps.value = 0
           currentFps = 0
           updateFrameInterval()
           previewVideo?.pause()
           if (previewVideo)
             previewVideo.srcObject = null
-          const [, lowPowerDelegate] = await Promise.all([
+          await Promise.all([
             releaseWakeLock(),
             activeLandmarkers.enterLowPowerMode(),
           ])
           if (token !== runToken || activeLandmarkers !== landmarkers)
             return
-          delegate.value = lowPowerDelegate
           return
         }
       }
@@ -475,7 +467,6 @@ export function usePostureMonitor() {
     if (now - fpsWindowStart < 1000)
       return
     currentFps = (frameCount * 1000) / (now - fpsWindowStart)
-    fps.value = currentFps
     frameCount = 0
     fpsWindowStart = now
   }
@@ -497,17 +488,12 @@ export function usePostureMonitor() {
   return {
     status,
     message,
-    fps,
-    delegate,
     metrics,
     verdict,
     baseline,
     sensitivity,
     calibrationProgress,
-    isRunning,
-    start,
     attachPreview,
-    pause,
     toggle,
     beginCalibration,
     setSensitivity,

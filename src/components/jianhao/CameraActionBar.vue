@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import type { CameraFrameShape } from "@/features/posture/engine/storage"
-import { FlipHorizontal2, Pause, Play, RotateCcw } from "@lucide/vue"
+import type { CameraFrameShape } from "@/modules/posture/engine/storage"
+import { FlipHorizontal2, Pause, RotateCcw } from "@lucide/vue"
 import { useI18n } from "vue-i18n"
-import { Spinner } from "@/components/ui/spinner"
 
 const props = defineProps<{
   isMonitoring: boolean
   isCalibrating: boolean
-  isLoading: boolean
   hasBaseline: boolean
   startLabel: string
   isMirrored: boolean
@@ -35,14 +33,10 @@ const { t } = useI18n()
       type="button"
       class="pointer-events-auto inline-flex h-9 items-center gap-2 rounded-full bg-black/50 px-3 text-sm text-white backdrop-blur-md transition hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white disabled:cursor-wait disabled:opacity-60"
       :class="props.frameShape === 'circle' ? 'size-10 justify-center p-0' : ''"
-      :disabled="props.isLoading"
       :aria-label="props.startLabel"
-      :aria-busy="props.isLoading"
       @click="emit('start')"
     >
-      <Spinner v-if="props.isLoading" class="size-4" />
-      <Pause v-else-if="props.isMonitoring" class="size-4 fill-current" />
-      <Play v-else class="size-4 fill-current" />
+      <Pause class="size-4 fill-current" />
       <span v-if="props.frameShape !== 'circle'">{{ props.startLabel }}</span>
     </button>
 

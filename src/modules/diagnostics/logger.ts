@@ -1,8 +1,8 @@
-import type { PostureIssue } from "@/features/posture/catalog"
-import type { Baseline, FrameMetrics } from "@/features/posture/engine/types"
+import type { PostureIssue } from "@/modules/posture/catalog"
+import type { Baseline, FrameMetrics } from "@/modules/posture/engine/types"
 import { isTauri } from "@tauri-apps/api/core"
 import { info } from "@tauri-apps/plugin-log"
-import { POSTURE_ISSUE_ORDER } from "@/features/posture/catalog"
+import { POSTURE_ISSUE_ORDER } from "@/modules/posture/catalog"
 
 export interface PostureIssueReading {
   issue: PostureIssue

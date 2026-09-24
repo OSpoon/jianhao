@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Sensitivity } from "@/features/posture/engine/types"
+import type { Sensitivity } from "@/modules/posture/engine/types"
 import { useI18n } from "vue-i18n"
 import { Switch } from "@/components/ui/switch"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
@@ -15,15 +15,9 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-const sensitivityOptions: Array<{ value: Sensitivity }> = [
-  { value: "low" },
-  { value: "normal" },
-  { value: "high" },
-]
+const sensitivityOptions: Sensitivity[] = ["low", "normal", "high"]
 
 function handleSensitivity(value: unknown): void {
-  if (typeof value !== "string")
-    return
   if (value === "low" || value === "normal" || value === "high") {
     emit("sensitivity", value)
   }
@@ -51,11 +45,11 @@ function handleSensitivity(value: unknown): void {
         >
           <ToggleGroupItem
             v-for="option in sensitivityOptions"
-            :key="option.value"
-            :value="option.value"
+            :key="option"
+            :value="option"
             class="whitespace-nowrap border-0 px-3 text-xs data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
           >
-            {{ t(`settings.${option.value}`) }}
+            {{ t(`settings.${option}`) }}
           </ToggleGroupItem>
         </ToggleGroup>
       </div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject } from "vue"
 import CameraMonitorView from "@/components/jianhao/CameraMonitorView.vue"
-import { jianhaoAppKey } from "@/features/app/context"
+import { jianhaoAppKey } from "@/modules/app/context"
 
 const app = inject(jianhaoAppKey)
 

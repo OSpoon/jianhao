@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ComponentPublicInstance } from "vue"
-import type { CameraFrameShape } from "@/features/posture/engine/storage"
+import type { CameraFrameShape } from "@/modules/posture/engine/storage"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { useI18n } from "vue-i18n"
 

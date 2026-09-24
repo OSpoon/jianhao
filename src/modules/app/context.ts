@@ -1,5 +1,5 @@
 import type { InjectionKey } from "vue"
-import type { useJianhaoApp } from "@/features/app/useJianhaoApp"
+import type { useJianhaoApp } from "@/modules/app/useJianhaoApp"
 
 export type JianhaoAppState = ReturnType<typeof useJianhaoApp>
 

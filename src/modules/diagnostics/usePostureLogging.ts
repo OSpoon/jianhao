@@ -1,8 +1,8 @@
 import type { PostureIssueReading } from "./logger"
-import type { Verdict } from "@/features/posture/engine/types"
-import type { usePostureMonitor } from "@/features/posture/usePostureMonitor"
+import type { Verdict } from "@/modules/posture/engine/types"
+import type { usePostureMonitor } from "@/modules/posture/usePostureMonitor"
 import { onBeforeUnmount, onMounted, watch } from "vue"
-import { POSTURE_ISSUE_ORDER } from "@/features/posture/catalog"
+import { POSTURE_ISSUE_ORDER } from "@/modules/posture/catalog"
 import { recordPostureEvent } from "./logger"
 
 type Monitor = ReturnType<typeof usePostureMonitor>

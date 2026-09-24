@@ -3,7 +3,7 @@ import { inject } from "vue"
 import CameraSettingsCard from "@/components/jianhao/CameraSettingsCard.vue"
 import DiagnosticsCard from "@/components/jianhao/DiagnosticsCard.vue"
 import MonitoringSettingsCard from "@/components/jianhao/MonitoringSettingsCard.vue"
-import { jianhaoAppKey } from "@/features/app/context"
+import { jianhaoAppKey } from "@/modules/app/context"
 
 const app = inject(jianhaoAppKey)
 

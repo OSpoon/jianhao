@@ -37,7 +37,6 @@ fn build_macos_app_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>
         true,
         &[
             &PredefinedMenuItem::minimize(app, None)?,
-            &PredefinedMenuItem::maximize(app, None)?,
             &PredefinedMenuItem::separator(app)?,
             &PredefinedMenuItem::close_window(app, None)?,
         ],
@@ -78,23 +77,9 @@ fn build_macos_app_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>
             &PredefinedMenuItem::select_all(app, None)?,
         ],
     )?;
-    let view_menu = Submenu::with_items(
-        app,
-        "View",
-        true,
-        &[&PredefinedMenuItem::fullscreen(app, None)?],
-    )?;
-
     Menu::with_items(
         app,
-        &[
-            &app_menu,
-            &file_menu,
-            &edit_menu,
-            &view_menu,
-            &window_menu,
-            &help_menu,
-        ],
+        &[&app_menu, &file_menu, &edit_menu, &window_menu, &help_menu],
     )
 }
 

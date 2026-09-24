@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { CameraFrameShape } from "@/features/posture/engine/storage"
-import type { MonitorStatus } from "@/features/posture/usePostureMonitor"
+import type { CameraFrameShape } from "@/modules/posture/engine/storage"
+import type { MonitorStatus } from "@/modules/posture/usePostureMonitor"
 import CameraActionBar from "@/components/jianhao/CameraActionBar.vue"
 import CameraPreviewSurface from "@/components/jianhao/CameraPreviewSurface.vue"
 import CameraStatusOverlay from "@/components/jianhao/CameraStatusOverlay.vue"
@@ -51,7 +51,6 @@ const emit = defineEmits<{
     <CameraActionBar
       :is-monitoring="props.isMonitoring"
       :is-calibrating="props.isCalibrating"
-      :is-loading="props.isLoading"
       :has-baseline="props.hasBaseline"
       :start-label="props.startLabel"
       :is-mirrored="props.isMirrored"

@@ -3,8 +3,6 @@ export const messages = {
     app: { brand: "渐好", windowTitle: "渐好 · 姿态矫正" },
     nav: {
       settings: "设置",
-      home: "坐姿校准",
-      back: "返回",
       backHome: "返回校准首页",
       openSettings: "打开设置",
       alwaysOnTop: "窗口置顶",
@@ -15,8 +13,6 @@ export const messages = {
     },
     home: {
       cameraTitle: "坐姿校准",
-      idle: "保持自然坐姿，校准约需 3 秒。",
-      paused: "已暂停",
       startCamera: "打开摄像头开始",
       loading: "启动中…",
       pauseMonitoring: "暂停监测",
@@ -41,7 +37,6 @@ export const messages = {
       normal: "标准",
       high: "高",
       cameraViewTitle: "摄像头",
-      previewShape: "预览形状",
       switchPreviewShape: "切换预览形状",
       previewRounded: "圆角",
       previewCircle: "圆形",

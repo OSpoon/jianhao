@@ -9,7 +9,6 @@ defineProps<{
 
 interface UpdateProgress {
   phase: "downloading" | "ready" | "installing" | "hidden"
-  version: string
   downloaded: number
   contentLength: number | null
 }

@@ -5,8 +5,8 @@ import { computed, onBeforeUnmount, onMounted, provide, ref, watch } from "vue"
 import { useRoute } from "vue-router"
 import UpdateProgressOverlay from "@/components/jianhao/UpdateProgressOverlay.vue"
 import WindowToolbar from "@/components/jianhao/WindowToolbar.vue"
-import { jianhaoAppKey } from "@/features/app/context"
-import { useJianhaoApp } from "@/features/app/useJianhaoApp"
+import { jianhaoAppKey } from "@/modules/app/context"
+import { useJianhaoApp } from "@/modules/app/useJianhaoApp"
 import logoUrl from "./assets/brand-mark.png"
 
 const previewVideo = ref<HTMLVideoElement | null>(null)

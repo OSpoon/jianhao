@@ -1,10 +1,11 @@
 import type { Ref } from "vue"
-import type { CameraFrameShape } from "@/features/posture/engine/storage"
-import type { Sensitivity } from "@/features/posture/engine/types"
+import type { CameraFrameShape } from "@/modules/posture/engine/storage"
+import type { Sensitivity } from "@/modules/posture/engine/types"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { useDevicesList, useEventListener } from "@vueuse/core"
 import { computed, onMounted, ref, watch } from "vue"
-import { usePostureLogging } from "@/features/diagnostics/usePostureLogging"
+import { i18n } from "@/i18n"
+import { usePostureLogging } from "@/modules/diagnostics/usePostureLogging"
 import {
   loadAlwaysOnTop,
   loadCameraDeviceId,
@@ -14,11 +15,10 @@ import {
   saveCameraDeviceId,
   saveCameraFrameShape,
   saveCameraMirrored,
-} from "@/features/posture/engine/storage"
-import { PostureOverlay } from "@/features/posture/overlay"
-import { usePostureMonitor } from "@/features/posture/usePostureMonitor"
-import { usePosturePresentation } from "@/features/posture/usePosturePresentation"
-import { i18n } from "@/i18n"
+} from "@/modules/posture/engine/storage"
+import { PostureOverlay } from "@/modules/posture/overlay"
+import { usePostureMonitor } from "@/modules/posture/usePostureMonitor"
+import { usePosturePresentation } from "@/modules/posture/usePosturePresentation"
 
 export function useJianhaoApp(
   previewVideoRef: Ref<HTMLVideoElement | null>,
@@ -129,7 +129,6 @@ export function useJianhaoApp(
 
   onMounted(() => {
     document.title = t("app.windowTitle")
-    void refreshCameraDevices()
 
     void (async () => {
       try {
