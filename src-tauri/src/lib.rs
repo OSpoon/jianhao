@@ -16,7 +16,7 @@ fn build_macos_app_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>
         .product_name
         .clone()
         .unwrap_or_else(|| package_info.name.clone());
-    let about_icon = Image::from_bytes(include_bytes!("../../src/assets/brand-mark.png"))?;
+    let about_icon = Image::from_bytes(include_bytes!("../icons/macos-dev.png"))?;
     let about_metadata = AboutMetadata {
         name: Some(product_name.clone()),
         version: Some(package_info.version.to_string()),

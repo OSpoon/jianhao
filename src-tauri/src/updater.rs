@@ -1,8 +1,20 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use tauri::{AppHandle, Manager, Runtime};
+use serde::Serialize;
+use tauri::{AppHandle, Emitter, Manager, Runtime};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tauri_plugin_updater::{Update, UpdaterExt};
+
+const UPDATE_PROGRESS_EVENT: &str = "update-download-progress";
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct UpdateProgress {
+    phase: &'static str,
+    version: String,
+    downloaded: u64,
+    content_length: Option<u64>,
+}
 
 #[derive(Default)]
 pub struct UpdateState(AtomicBool);
@@ -52,15 +64,16 @@ fn prompt_to_install<R: Runtime>(app: AppHandle<R>, update: Update) {
         .clone()
         .unwrap_or_else(|| "此版本没有提供更新说明。".to_string());
     let app_for_dialog = app.clone();
+    let version_for_download = version.clone();
 
     app.dialog()
         .message(format!(
-            "发现新版本 v{version}。\n\n{notes}\n\n是否现在下载并安装？"
+            "发现新版本 v{version}。\n\n{notes}\n\n是否现在下载更新？下载完成后会再次确认安装和重启。"
         ))
         .title("发现更新")
         .kind(MessageDialogKind::Info)
         .buttons(MessageDialogButtons::OkCancelCustom(
-            "下载并安装".to_string(),
+            "下载更新".to_string(),
             "稍后".to_string(),
         ))
         .show(move |confirmed| {
@@ -70,14 +83,108 @@ fn prompt_to_install<R: Runtime>(app: AppHandle<R>, update: Update) {
             }
 
             tauri::async_runtime::spawn(async move {
-                let result = update.download_and_install(|_, _| {}, || {}).await;
-                app_for_dialog.state::<UpdateState>().finish();
+                emit_progress(
+                    &app_for_dialog,
+                    "downloading",
+                    version_for_download.clone(),
+                    0,
+                    None,
+                );
+
+                let app_for_progress = app_for_dialog.clone();
+                let progress_version = version_for_download.clone();
+                let mut downloaded = 0_u64;
+                let result = update
+                    .download(
+                        move |chunk_length, content_length| {
+                            downloaded += chunk_length as u64;
+                            emit_progress(
+                                &app_for_progress,
+                                "downloading",
+                                progress_version.clone(),
+                                downloaded,
+                                content_length,
+                            );
+                        },
+                        || {},
+                    )
+                    .await;
+
                 match result {
-                    Ok(()) => app_for_dialog.restart(),
-                    Err(error) => show_error(&app_for_dialog, "安装更新失败", error),
+                    Ok(bytes) => {
+                        emit_progress(
+                            &app_for_dialog,
+                            "ready",
+                            version_for_download.clone(),
+                            0,
+                            None,
+                        );
+                        prompt_to_restart(app_for_dialog, update, bytes, version_for_download);
+                    }
+                    Err(error) => {
+                        show_error(&app_for_dialog, "下载更新失败", error);
+                    }
                 }
             });
         });
+}
+
+fn prompt_to_restart<R: Runtime>(
+    app: AppHandle<R>,
+    update: Update,
+    bytes: Vec<u8>,
+    version: String,
+) {
+    let app_for_dialog = app.clone();
+    app.dialog()
+        .message(format!(
+            "v{version} 已下载完成。安装更新需要重启渐好，是否现在继续？选择取消后可稍后重新检查更新。"
+        ))
+        .title("更新已下载")
+        .kind(MessageDialogKind::Info)
+        .buttons(MessageDialogButtons::OkCancelCustom(
+            "安装并重启".to_string(),
+            "取消".to_string(),
+        ))
+        .show(move |confirmed| {
+            if !confirmed {
+                hide_progress(&app_for_dialog, version);
+                app_for_dialog.state::<UpdateState>().finish();
+                return;
+            }
+
+            emit_progress(&app_for_dialog, "installing", version.clone(), 0, None);
+            tauri::async_runtime::spawn(async move {
+                match update.install(bytes) {
+                    Ok(()) => app_for_dialog.restart(),
+                    Err(error) => {
+                        show_error(&app_for_dialog, "安装更新失败", error);
+                    }
+                }
+            });
+        });
+}
+
+fn emit_progress<R: Runtime>(
+    app: &AppHandle<R>,
+    phase: &'static str,
+    version: String,
+    downloaded: u64,
+    content_length: Option<u64>,
+) {
+    let _ = app.emit(
+        UPDATE_PROGRESS_EVENT,
+        UpdateProgress {
+            phase,
+            version,
+            downloaded,
+            content_length,
+        },
+    );
+}
+
+fn hide_progress<R: Runtime>(app: &AppHandle<R>, version: String) {
+    emit_progress(app, "hidden", version, 0, None);
 }
 
 fn show_message<R: Runtime>(
@@ -95,6 +202,7 @@ fn show_message<R: Runtime>(
 }
 
 fn show_error<R: Runtime>(app: &AppHandle<R>, title: &str, error: impl std::fmt::Display) {
+    hide_progress(app, String::new());
     app.state::<UpdateState>().finish();
     show_message(app, title, error.to_string(), MessageDialogKind::Error);
 }
