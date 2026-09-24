@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { inject } from "vue"
-import CameraCalibrationCard from "@/components/jianhao/CameraCalibrationCard.vue"
+import CameraMonitorView from "@/components/jianhao/CameraMonitorView.vue"
 import { jianhaoAppKey } from "@/features/app/context"
 
 const app = inject(jianhaoAppKey)
@@ -11,7 +11,7 @@ if (!app) {
 </script>
 
 <template>
-  <CameraCalibrationCard
+  <CameraMonitorView
     :is-monitoring="app.isMonitoring.value"
     :is-calibrating="app.isCalibrating.value"
     :is-loading="app.monitor.status.value === 'loading'"
