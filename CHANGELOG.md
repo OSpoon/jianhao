@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.1-beta.6
+
+[compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.5...v0.1.1-beta.6)
+
+### 🚀 Enhancements
+
+- 更新图标生成脚本，替换为 Tauri 图标生成命令并添加新图标文件 ([dcccb6b](https://github.com/OSpoon/jianhao/commit/dcccb6b))
+
+### ❤️ Contributors
+
+- OSpoon ([@OSpoon](https://github.com/OSpoon))
+
 ## v0.1.1-beta.5
 
 [compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.4...v0.1.1-beta.5)
