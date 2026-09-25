@@ -38,6 +38,7 @@
 前往 [GitHub Releases](https://github.com/OSpoon/jianhao/releases/latest) 下载最新安装包。当前自动构建的发行目标为：
 
 - macOS Apple Silicon（`aarch64-apple-darwin`）
+- macOS Intel（`x86_64-apple-darwin`）
 - Windows x64（`x86_64-pc-windows-msvc`）
 
 首次使用时，允许应用访问摄像头，然后点击窗口中的开始按钮。应用默认使用系统摄像头；也可以在设置中选择其他设备。保持自然坐姿并完成校准后即可开始监测。
@@ -96,7 +97,7 @@ pnpm tauri signer generate -w ./.tauri/updater.key
 - `TAURI_SIGNING_PRIVATE_KEY`：`.tauri/updater.key` 的文件内容。
 - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`：生成私钥时设置的密码；未设置密码时可留空或不创建该 Secret。
 
-推送 `v*` 标签后，发行工作流会使用这些 Secrets 为 macOS Apple Silicon 和 Windows x64 构建安装包、生成更新签名，并创建待审核的 GitHub Draft Release。CI 会在分支推送和 Pull Request 时运行前端与 Rust 检查。
+推送 `v*` 标签后，发行工作流会使用这些 Secrets 为 macOS Apple Silicon、macOS Intel 和 Windows x64 构建安装包、生成更新签名，并创建待审核的 GitHub Draft Release。CI 会在分支推送和 Pull Request 时运行前端与 Rust 检查。
 
 更多参数与平台细节见 [Tauri Updater 文档](https://tauri.app/zh-cn/plugin/updater/)。
 
