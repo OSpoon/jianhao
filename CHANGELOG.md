@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.1.1-beta.11
+
+[compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.10...v0.1.1-beta.11)
+
+### 🚀 Enhancements
+
+- Use breathing camera border for posture alerts ([ca3d206](https://github.com/OSpoon/jianhao/commit/ca3d206))
+
+### 🤖 CI
+
+- **release:** Build macOS Intel artifacts ([8a08cb3](https://github.com/OSpoon/jianhao/commit/8a08cb3))
+
+### ❤️ Contributors
+
+- OSpoon <ospoon@OSpoondeMac-mini.local>
+
 ## v0.1.1-beta.10
 
 [compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.9...v0.1.1-beta.10)
