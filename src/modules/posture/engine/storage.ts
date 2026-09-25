@@ -10,6 +10,7 @@ const KEYS = {
   cameraDeviceId: "jianhao.camera-device-id.v1",
   cameraFrameShape: "jianhao.camera-frame-shape.v1",
   alwaysOnTop: "jianhao.window-always-on-top.v1",
+  postureAlertSound: "jianhao.posture-alert-sound.v1",
 } as const
 
 export type CameraFrameShape = "rounded" | "circle"
@@ -75,4 +76,12 @@ export function loadAlwaysOnTop(): boolean {
 
 export function saveAlwaysOnTop(enabled: boolean): void {
   write(KEYS.alwaysOnTop, enabled ? "on" : "off")
+}
+
+export function loadPostureAlertSoundEnabled(): boolean {
+  return read(KEYS.postureAlertSound) !== "off"
+}
+
+export function savePostureAlertSoundEnabled(enabled: boolean): void {
+  write(KEYS.postureAlertSound, enabled ? "on" : "off")
 }

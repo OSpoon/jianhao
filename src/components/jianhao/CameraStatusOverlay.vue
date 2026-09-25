@@ -7,6 +7,7 @@ import { computed } from "vue"
 import { useI18n } from "vue-i18n"
 import { Progress } from "@/components/ui/progress"
 import { Spinner } from "@/components/ui/spinner"
+import { POSTURE_ALERT_BREATH_PERIOD_MS } from "@/modules/posture/alert"
 
 const props = defineProps<{
   isMonitoring: boolean
@@ -49,6 +50,7 @@ const showPostureAlert = computed(
     v-if="showPostureAlert"
     aria-hidden="true"
     class="posture-alert-border pointer-events-none absolute inset-0 z-20"
+    :style="{ '--posture-alert-breath-duration': `${POSTURE_ALERT_BREATH_PERIOD_MS}ms` }"
     :class="[
       props.frameShape === 'circle' ? 'rounded-full' : 'rounded-[20px]',
       { 'posture-alert-border--static': preferredMotion === 'reduce' },

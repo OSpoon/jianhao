@@ -1,0 +1,1 @@
+export const POSTURE_ALERT_BREATH_PERIOD_MS = 3_200

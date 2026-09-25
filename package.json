@@ -4,7 +4,7 @@
   "version": "0.1.1-beta.11",
   "private": true,
   "packageManager": "pnpm@10.15.1",
-  "description": "渐好是一款通过摄像头在本机分析坐姿，并以全窗渐变遮罩提供提醒的桌面应用。",
+  "description": "渐好是一款通过摄像头在本机分析坐姿，并以摄像头窗口边框呼吸提醒（可选同步系统默认提示音）的桌面应用。",
   "author": {
     "name": "OSpoon"
   },

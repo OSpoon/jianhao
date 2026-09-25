@@ -11,12 +11,15 @@ import {
   loadCameraDeviceId,
   loadCameraFrameShape,
   loadCameraMirrored,
+  loadPostureAlertSoundEnabled,
   saveAlwaysOnTop,
   saveCameraDeviceId,
   saveCameraFrameShape,
   saveCameraMirrored,
+  savePostureAlertSoundEnabled,
 } from "@/modules/posture/engine/storage"
 import { PostureOverlay } from "@/modules/posture/overlay"
+import { usePostureAlertSound } from "@/modules/posture/usePostureAlertSound"
 import { usePostureMonitor } from "@/modules/posture/usePostureMonitor"
 import { usePosturePresentation } from "@/modules/posture/usePosturePresentation"
 
@@ -34,6 +37,14 @@ export function useJianhaoApp(
   const cameraDeviceId = ref(loadCameraDeviceId())
   const cameraFrameShape = ref<CameraFrameShape>(loadCameraFrameShape())
   const alwaysOnTop = ref(loadAlwaysOnTop())
+  const postureAlertSoundEnabled = ref(loadPostureAlertSoundEnabled())
+  const hasActivePostureAlert = computed(
+    () => monitor.status.value === "running" && monitor.verdict.value?.alarm === true,
+  )
+  const postureAlertSound = usePostureAlertSound(
+    hasActivePostureAlert,
+    postureAlertSoundEnabled,
+  )
   const windowControlFeedback = ref("")
 
   let overlay: PostureOverlay | null = null
@@ -50,6 +61,15 @@ export function useJianhaoApp(
 
   function handleStart(): void {
     monitor.toggle(cameraDeviceId.value)
+  }
+
+  function handlePostureAlertSoundChange(enabled: boolean): void {
+    postureAlertSoundEnabled.value = enabled
+    savePostureAlertSoundEnabled(enabled)
+  }
+
+  function handlePostureAlertSoundPreview(): void {
+    postureAlertSound.playPreviewFromUserGesture()
   }
 
   function handleCameraDeviceChange(deviceId: string): void {
@@ -159,6 +179,7 @@ export function useJianhaoApp(
     cameraDeviceId,
     cameraFrameShape,
     alwaysOnTop,
+    postureAlertSoundEnabled,
     windowControlFeedback,
     handleStart,
     handleCameraDeviceChange,
@@ -171,5 +192,7 @@ export function useJianhaoApp(
     handleMinimizeWindow,
     handleCloseWindow,
     handleSensitivity,
+    handlePostureAlertSoundChange,
+    handlePostureAlertSoundPreview,
   }
 }

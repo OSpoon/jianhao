@@ -22,7 +22,10 @@ if (!app) {
       />
       <MonitoringSettingsCard
         :sensitivity="app.monitor.sensitivity.value"
+        :posture-alert-sound-enabled="app.postureAlertSoundEnabled.value"
         @sensitivity="app.handleSensitivity"
+        @posture-alert-sound="app.handlePostureAlertSoundChange"
+        @preview-posture-alert-sound="app.handlePostureAlertSoundPreview"
       />
       <DiagnosticsCard />
     </section>

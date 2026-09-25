@@ -7,6 +7,43 @@ use tauri::{
 mod updater;
 
 #[cfg(target_os = "macos")]
+#[link(name = "AppKit", kind = "framework")]
+unsafe extern "C" {
+    #[link_name = "NSBeep"]
+    fn ns_beep();
+}
+
+#[cfg(target_os = "windows")]
+#[link(name = "user32")]
+unsafe extern "system" {
+    #[link_name = "MessageBeep"]
+    fn message_beep(sound_type: u32) -> i32;
+}
+
+#[cfg(target_os = "windows")]
+const MB_OK: u32 = 0x0000;
+
+#[tauri::command]
+fn play_system_alert_sound(app: AppHandle) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    app.run_on_main_thread(|| unsafe { ns_beep() })
+        .map_err(|error| error.to_string())?;
+
+    #[cfg(target_os = "windows")]
+    {
+        let _ = app;
+        unsafe {
+            message_beep(MB_OK);
+        }
+    }
+
+    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
+    let _ = app;
+
+    Ok(())
+}
+
+#[cfg(target_os = "macos")]
 fn build_macos_app_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
     use tauri::menu::{AboutMetadata, Submenu};
 
@@ -121,6 +158,7 @@ pub fn run() {
     let builder = builder.menu(build_macos_app_menu);
 
     builder
+        .invoke_handler(tauri::generate_handler![play_system_alert_sound])
         .setup(|app| {
             let menu = build_tray_menu(app.handle())?;
             let tray_icon = if cfg!(target_os = "macos") {

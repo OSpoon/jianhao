@@ -154,7 +154,8 @@
     linear-gradient(#fff 0 0);
   mask-composite: exclude;
   filter: drop-shadow(0 0 8px rgb(239 68 68 / 38%));
-  animation: posture-border-breathe 3.2s ease-in-out infinite;
+  animation:
+    posture-border-breathe var(--posture-alert-breath-duration, 3200ms) ease-in-out infinite;
 }
 
 @keyframes posture-border-breathe {

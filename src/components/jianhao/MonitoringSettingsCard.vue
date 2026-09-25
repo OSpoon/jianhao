@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import type { Sensitivity } from "@/modules/posture/engine/types"
 import { useI18n } from "vue-i18n"
+import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
 const props = defineProps<{
   sensitivity: Sensitivity
+  postureAlertSoundEnabled: boolean
 }>()
 const emit = defineEmits<{
   sensitivity: [value: Sensitivity]
+  postureAlertSound: [enabled: boolean]
+  previewPostureAlertSound: []
 }>()
 
 const { t } = useI18n()
@@ -49,6 +54,31 @@ function handleSensitivity(value: unknown): void {
             {{ t(`settings.${option}`) }}
           </ToggleGroupItem>
         </ToggleGroup>
+      </div>
+      <div class="flex min-h-9 items-center justify-between gap-3">
+        <div class="min-w-0">
+          <span id="posture-alert-sound-label" class="block text-[13px] font-medium">
+            {{ t("settings.postureAlertSound") }}
+          </span>
+          <span class="block text-[11px] leading-4 text-muted-foreground">
+            {{ t("settings.postureAlertSoundDescription") }}
+          </span>
+        </div>
+        <div class="flex shrink-0 items-center gap-2">
+          <Button
+            variant="outline"
+            size="xs"
+            :disabled="!props.postureAlertSoundEnabled"
+            @click="emit('previewPostureAlertSound')"
+          >
+            {{ t("settings.previewSound") }}
+          </Button>
+          <Switch
+            :model-value="props.postureAlertSoundEnabled"
+            aria-labelledby="posture-alert-sound-label"
+            @update:model-value="emit('postureAlertSound', $event)"
+          />
+        </div>
       </div>
     </div>
   </section>

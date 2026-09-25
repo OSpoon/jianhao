@@ -32,6 +32,9 @@ export const messages = {
     settings: {
       monitoringTitle: "监测设置",
       sensitivity: "检测灵敏度",
+      postureAlertSound: "姿态提醒音",
+      postureAlertSoundDescription: "使用系统默认提示音，与边框呼吸同步播放",
+      previewSound: "试听",
       low: "低",
       normal: "标准",
       high: "高",
