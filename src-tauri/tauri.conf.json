@@ -38,7 +38,7 @@
     "licenseFile": "../LICENSE",
     "category": "Productivity",
     "shortDescription": "本机运行的实时坐姿提醒桌面应用",
-    "longDescription": "渐好通过摄像头在本机实时分析坐姿；需要调整时，整个窗口会出现柔和的半透明红黄渐变提醒遮罩。摄像头画面不会上传。",
+    "longDescription": "渐好通过摄像头在本机实时分析坐姿；需要调整时，摄像头窗口边框会以柔和的红黄渐变呼吸提醒。摄像头画面不会上传。",
     "createUpdaterArtifacts": true,
     "macOS": {
       "signingIdentity": "-",

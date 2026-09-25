@@ -48,10 +48,10 @@ const showPostureAlert = computed(
   <div
     v-if="showPostureAlert"
     aria-hidden="true"
-    class="posture-alert-overlay pointer-events-none absolute inset-0 z-20"
+    class="posture-alert-border pointer-events-none absolute inset-0 z-20"
     :class="[
       props.frameShape === 'circle' ? 'rounded-full' : 'rounded-[20px]',
-      { 'posture-alert-overlay--static': preferredMotion === 'reduce' },
+      { 'posture-alert-border--static': preferredMotion === 'reduce' },
     ]"
   />
 
