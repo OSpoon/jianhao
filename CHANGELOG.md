@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.1-beta.13
+
+[compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.12...v0.1.1-beta.13)
+
+### 🚀 Enhancements
+
+- Implement video element frame source for posture monitoring ([271c5e9](https://github.com/OSpoon/jianhao/commit/271c5e9))
+
+### ❤️ Contributors
+
+- OSpoon ([@OSpoon](https://github.com/OSpoon))
+
 ## v0.1.1-beta.12
 
 [compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.11...v0.1.1-beta.12)
