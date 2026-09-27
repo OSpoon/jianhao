@@ -27,6 +27,17 @@ try {
   }
 
   const imageData = readFileSync(sourcePath).toString("base64")
+  const windowsSvgPath = join(tempDir, "windows-icon.svg")
+  const windowsOutputDir = join(tempDir, "windows")
+  const windowsCornerRadius = 204
+  const windowsSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><defs><clipPath id="mask"><rect width="1024" height="1024" rx="${windowsCornerRadius}"/></clipPath></defs><image width="1024" height="1024" href="data:image/png;base64,${imageData}" clip-path="url(#mask)"/></svg>`
+  writeFileSync(windowsSvgPath, windowsSvg)
+  execFileSync(process.execPath, [tauriCliPath, "icon", windowsSvgPath, "--output", windowsOutputDir], {
+    cwd: rootDir,
+    stdio: "inherit",
+  })
+  copyFileSync(join(windowsOutputDir, "icon.ico"), join(iconsDir, "icon.ico"))
+
   const svgPath = join(tempDir, "macos-dev-icon.svg")
   const macosDevOutputDir = join(tempDir, "macos-dev")
   const inset = 102
