@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.1-beta.12
+
+[compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.11...v0.1.1-beta.12)
+
+### 🚀 Enhancements
+
+- Add optional posture alert sound ([f2bdb2b](https://github.com/OSpoon/jianhao/commit/f2bdb2b))
+
+### ❤️ Contributors
+
+- OSpoon <ospoon@OSpoondeMac-mini.local>
+
 ## v0.1.1-beta.11
 
 [compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.10...v0.1.1-beta.11)
