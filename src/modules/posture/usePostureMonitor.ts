@@ -8,7 +8,7 @@ import { Calibrator, loadBaseline, saveBaseline } from "./engine/calibration"
 import { cameraConstraints } from "./engine/camera"
 import { BLINK_MIN_FPS, CALIBRATION_MS, RULES } from "./engine/config"
 import { PostureJudge } from "./engine/judge"
-import { Landmarkers, TrackProcessorUnsupportedError } from "./engine/landmarkers"
+import { Landmarkers } from "./engine/landmarkers"
 import { computeMetrics } from "./engine/metrics"
 import { loadSensitivity, saveSensitivity } from "./engine/storage"
 
@@ -216,9 +216,7 @@ export function usePostureMonitor() {
       landmarkers?.close()
       landmarkers = null
       status.value = "error"
-      message.value = error instanceof TrackProcessorUnsupportedError
-        ? t("runtime.trackProcessorUnsupported")
-        : t("runtime.error", { error: errorMessage(error) })
+      message.value = t("runtime.error", { error: errorMessage(error) })
     }
   }
 

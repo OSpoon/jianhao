@@ -1,4 +1,5 @@
 import type { FaceLandmarkerResult, PoseLandmarkerResult } from "@mediapipe/tasks-vision"
+import { VideoElementFrameSource } from "./video-element-frame-source"
 
 export type Delegate = "GPU" | "CPU"
 export type DetectionMode = "full" | "presence"
@@ -22,6 +23,8 @@ export type LandmarkerWorkerRequest
   = | { type: "load" }
     | { type: "set-mode", mode: DetectionMode }
     | { type: "start-track", track: MediaStreamTrack }
+    | { type: "start-frame-stream" }
+    | { type: "process-frame", frame: ImageBitmap, frameId: number, timestampMs: number }
     | { type: "stop-track" }
     | { type: "set-frame-interval", intervalMs: number }
     | { type: "frame-ack", frameId: number }
@@ -52,13 +55,6 @@ interface PendingTrackStart {
   cancelled: boolean
 }
 
-export class TrackProcessorUnsupportedError extends Error {
-  constructor() {
-    super("MediaStreamTrackProcessor is unavailable in this Web Worker")
-    this.name = "TrackProcessorUnsupportedError"
-  }
-}
-
 /** Main-thread proxy. MediaPipe initialization and streamed inference run in its worker. */
 export class Landmarkers {
   private readonly worker: Worker
@@ -76,6 +72,8 @@ export class Landmarkers {
   private activeDelegate: Delegate | null = null
   private closed = false
   private terminationTimer: number | null = null
+  private videoElementFrameSource: VideoElementFrameSource | null = null
+  private frameIntervalMs = 66
 
   constructor(
     private readonly onAttempt: (delegate: Delegate) => void,
@@ -139,6 +137,7 @@ export class Landmarkers {
     }
     if (this.pendingTrackStop)
       return this.pendingTrackStop.promise
+    this.stopVideoElementFrameSource()
     if (!this.trackStreaming || this.closed)
       return
 
@@ -170,9 +169,7 @@ export class Landmarkers {
         return
       }
       if (!supported) {
-        track.stop()
-        this.pendingTrackStart = null
-        pending.reject(new TrackProcessorUnsupportedError())
+        await this.startVideoElementFrameSource(track, pending)
         return
       }
 
@@ -188,11 +185,69 @@ export class Landmarkers {
     }
   }
 
+  private async startVideoElementFrameSource(track: MediaStreamTrack, pending: PendingTrackStart): Promise<void> {
+    const frameSource = new VideoElementFrameSource(
+      track,
+      ({ frame, frameId, timestampMs }) => {
+        this.worker.postMessage(
+          { type: "process-frame", frame, frameId, timestampMs } satisfies LandmarkerWorkerRequest,
+          [frame],
+        )
+      },
+      error => this.onStreamError(error),
+      this.handleVideoElementTrackEnded,
+    )
+    frameSource.setFrameInterval(this.frameIntervalMs)
+    this.videoElementFrameSource = frameSource
+
+    try {
+      await frameSource.start()
+      if (pending.cancelled || this.pendingTrackStart !== pending || this.closed) {
+        frameSource.stop()
+        if (this.videoElementFrameSource === frameSource)
+          this.videoElementFrameSource = null
+        if (this.pendingTrackStart === pending)
+          this.pendingTrackStart = null
+        pending.reject(new Error("Camera track startup was canceled"))
+        return
+      }
+
+      this.worker.postMessage({ type: "start-frame-stream" } satisfies LandmarkerWorkerRequest)
+    }
+    catch (error) {
+      frameSource.stop()
+      if (this.videoElementFrameSource === frameSource)
+        this.videoElementFrameSource = null
+      if (this.pendingTrackStart === pending)
+        this.pendingTrackStart = null
+      pending.reject(asError(error))
+    }
+  }
+
+  private stopVideoElementFrameSource(): void {
+    this.videoElementFrameSource?.stop()
+    this.videoElementFrameSource = null
+  }
+
+  private readonly handleVideoElementTrackEnded = (): void => {
+    this.videoElementFrameSource = null
+    const pending = this.pendingTrackStart
+    if (pending) {
+      this.pendingTrackStart = null
+      pending.reject(new Error("The camera track ended while posture monitoring was starting"))
+    }
+    else if (!this.closed) {
+      this.onStreamError(new Error("The camera track ended while posture monitoring was active"))
+    }
+  }
+
   setFrameInterval(intervalMs: number): void {
     if (this.closed)
       return
+    this.frameIntervalMs = Math.max(0, Math.min(5000, intervalMs))
+    this.videoElementFrameSource?.setFrameInterval(this.frameIntervalMs)
     try {
-      this.worker.postMessage({ type: "set-frame-interval", intervalMs } satisfies LandmarkerWorkerRequest)
+      this.worker.postMessage({ type: "set-frame-interval", intervalMs: this.frameIntervalMs } satisfies LandmarkerWorkerRequest)
     }
     catch {
       // Best effort; the worker keeps its current frame interval.
@@ -211,6 +266,7 @@ export class Landmarkers {
     if (this.closed)
       return
     this.closed = true
+    this.stopVideoElementFrameSource()
 
     if (!this.loadSettled) {
       this.loadSettled = true
@@ -262,13 +318,13 @@ export class Landmarkers {
       this.trackStreaming = true
       this.pendingTrackStart?.resolve()
       this.pendingTrackStart = null
+      this.videoElementFrameSource?.startFrames()
       return
     }
     if (response.type === "track-unavailable") {
       this.trackStreaming = false
-      const error = response.reason === "unsupported"
-        ? new TrackProcessorUnsupportedError()
-        : new Error(response.message)
+      this.stopVideoElementFrameSource()
+      const error = new Error(response.message)
       this.pendingTrackStart?.reject(error)
       this.pendingTrackStart = null
       return
@@ -291,6 +347,7 @@ export class Landmarkers {
               // The worker is terminating.
             }
           }
+          this.videoElementFrameSource?.frameHandled()
         })
       return
     }
@@ -316,6 +373,7 @@ export class Landmarkers {
         pending.resolve(response.delegate)
       else
         pending?.reject(new Error(`The worker changed to unexpected ${response.mode} mode`))
+      void this.videoElementFrameSource?.applyCaptureProfile(response.mode)
       return
     }
     if (response.type === "error") {
@@ -332,10 +390,13 @@ export class Landmarkers {
       else if (response.operation === "track") {
         const pending = this.pendingTrackStart
         this.pendingTrackStart = null
-        if (pending)
+        if (pending) {
+          this.stopVideoElementFrameSource()
           pending.reject(error)
-        else
+        }
+        else {
           this.onStreamError(error)
+        }
       }
       else if (response.operation === "detect") {
         this.onStreamError(error)
@@ -356,6 +417,7 @@ export class Landmarkers {
 
   private fail(error: Error): void {
     this.closed = true
+    this.stopVideoElementFrameSource()
     if (!this.loadSettled) {
       this.loadSettled = true
       this.rejectLoad(error)
@@ -378,6 +440,7 @@ export class Landmarkers {
       this.terminationTimer = null
     }
     this.trackStreaming = false
+    this.stopVideoElementFrameSource()
     this.pendingTrackStart?.reject(new Error("The posture detection worker terminated"))
     this.pendingTrackStart = null
     this.pendingTrackStop?.resolve()

@@ -249,7 +249,7 @@ async function setMode(mode: DetectionMode): Promise<void> {
   }
 }
 
-function infer(frame: VideoFrame, mode: DetectionMode, timestampMs: number): RawDetection | boolean {
+function infer(frame: ImageBitmap | VideoFrame, mode: DetectionMode, timestampMs: number): RawDetection | boolean {
   if (mode !== activeMode || !face)
     throw new Error(`The posture detection worker is not in ${mode} mode`)
 
@@ -263,6 +263,36 @@ function infer(frame: VideoFrame, mode: DetectionMode, timestampMs: number): Raw
   return {
     face: face.detectForVideo(frame, timestampMs),
     pose: pose.detectForVideo(frame, timestampMs) as PoseLandmarkerResult,
+  }
+}
+
+function processFrame(frame: ImageBitmap, frameId: number, timestampMs: number): void {
+  try {
+    const mode = activeMode ?? "full"
+    const result = infer(frame, mode, timestampMs)
+    workerContext.postMessage({
+      type: "stream-detected",
+      frame: {
+        mode,
+        frameId,
+        timestampMs,
+        width: frame.width,
+        height: frame.height,
+        ...(typeof result === "boolean" ? { present: result } : { detection: result }),
+      },
+    })
+  }
+  catch (error) {
+    if (!closing) {
+      workerContext.postMessage({
+        type: "error",
+        operation: "detect",
+        message: errorMessage(error),
+      })
+    }
+  }
+  finally {
+    frame.close()
   }
 }
 
@@ -401,6 +431,18 @@ async function startTrack(track: MediaStreamTrack): Promise<void> {
   }
 }
 
+function startFrameStream(): void {
+  if (!face || activeMode !== "full") {
+    workerContext.postMessage({
+      type: "track-unavailable",
+      reason: "start",
+      message: "The posture detection model is not ready",
+    })
+    return
+  }
+  workerContext.postMessage({ type: "track-started" })
+}
+
 async function stopTrack(notify = true): Promise<void> {
   const track = captureTrack
   const reader = trackReader
@@ -449,6 +491,14 @@ workerContext.onmessage = ({ data }) => {
   }
   if (data.type === "start-track") {
     void startTrack(data.track)
+    return
+  }
+  if (data.type === "start-frame-stream") {
+    startFrameStream()
+    return
+  }
+  if (data.type === "process-frame") {
+    processFrame(data.frame, data.frameId, data.timestampMs)
     return
   }
   if (data.type === "stop-track") {

@@ -79,7 +79,6 @@ export const messages = {
       lookAwayCountdown: "远眺倒计时 {seconds} 秒",
       awaySleep: "暂时离座，进入低频唤醒",
       returned: "检测到你回到座位",
-      trackProcessorUnsupported: "当前系统的 WebView 不支持在后台 Worker 中逐帧处理摄像头画面，请升级系统或 WebView 后重试。",
       error: "发生错误：{error}",
     },
   },
