@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.1-beta.14
+
+[compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.13...v0.1.1-beta.14)
+
+### 🚀 Enhancements
+
+- Add Windows SVG icon generation and copy to icons directory ([bf84138](https://github.com/OSpoon/jianhao/commit/bf84138))
+
+### ❤️ Contributors
+
+- OSpoon ([@OSpoon](https://github.com/OSpoon))
+
 ## v0.1.1-beta.13
 
 [compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.12...v0.1.1-beta.13)
