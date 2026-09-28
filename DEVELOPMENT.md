@@ -59,7 +59,3 @@ pnpm tauri signer generate -w ./.tauri/updater.key
 更多参数与平台细节见 [Tauri Updater 文档](https://tauri.app/zh-cn/plugin/updater/)。
 
 `pnpm release` 会更新版本号与变更日志、创建版本提交和标签，并推送到远端；运行前请确认当前分支、工作区和远端配置。
-
-## 灵感与致谢
-
-渐好的产品创意与方案受到 [LinklyAI/upright](https://github.com/LinklyAI/upright) 启发，尤其是使用摄像头进行姿态监测与个人基线校准的方向。我们据此探索了适合渐好的桌面悬浮窗口、本地监测与即时视觉反馈体验。感谢 LinklyAI 团队开放并分享 Upright 项目。

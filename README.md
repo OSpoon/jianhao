@@ -49,3 +49,8 @@
 ## 许可证
 
 渐好以 [MIT License](./LICENSE) 发布。
+
+
+## 灵感与致谢
+
+渐好的产品创意与方案受到 [LinklyAI/upright](https://github.com/LinklyAI/upright) 启发，尤其是使用摄像头进行姿态监测与个人基线校准的方向。我们据此探索了适合渐好的桌面悬浮窗口、本地监测与即时视觉反馈体验。感谢 LinklyAI 开放并分享 Upright 项目。
