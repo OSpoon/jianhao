@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.1
+
+[compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.15...v0.1.1)
+
 ## v0.1.1-beta.15
 
 [compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.14...v0.1.1-beta.15)
