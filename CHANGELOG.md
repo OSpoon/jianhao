@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.1-beta.15
+
+[compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.14...v0.1.1-beta.15)
+
+### 🩹 Fixes
+
+- Sync always-on-top preference with native window state ([a1ce9ec](https://github.com/OSpoon/jianhao/commit/a1ce9ec))
+
+### ❤️ Contributors
+
+- OSpoon ([@OSpoon](https://github.com/OSpoon))
+
 ## v0.1.1-beta.14
 
 [compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.13...v0.1.1-beta.14)
