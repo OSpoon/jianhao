@@ -59,20 +59,20 @@ const showPostureAlert = computed(
 
   <div
     v-if="!props.isMonitoring || props.status === 'error'"
-    class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/35 px-5 text-center backdrop-blur-[2px]"
+    class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/35 px-5 text-center text-foreground backdrop-blur-[2px]"
     :class="props.frameShape === 'circle' ? 'rounded-full' : ''"
   >
     <Spinner v-if="props.isLoading" class="size-5" />
-    <Camera v-else class="size-6 text-white/80" :stroke-width="1.8" />
+    <Camera v-else class="size-6 text-foreground/80" :stroke-width="1.8" />
     <div
       class="max-w-full space-y-3"
       :class="props.frameShape === 'circle' ? 'space-y-2' : ''"
     >
       <p
-        class="text-white/80"
+        class="text-foreground/80"
         :class="[
           props.frameShape === 'circle' ? 'text-xs' : 'text-sm',
-          isLiveAlert ? 'text-red-100' : '',
+          isLiveAlert ? 'text-destructive' : '',
         ]"
         :role="props.status === 'error' ? 'alert' : 'status'"
       >
@@ -87,7 +87,7 @@ const showPostureAlert = computed(
       <button
         v-if="!props.isLoading"
         type="button"
-        class="inline-flex items-center justify-center rounded-full bg-white font-semibold text-[#292522] shadow-lg transition hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50 disabled:cursor-wait disabled:opacity-60"
+        class="inline-flex items-center justify-center rounded-full bg-primary font-semibold text-primary-foreground shadow-lg transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-wait disabled:opacity-60"
         :class="props.frameShape === 'circle'
           ? 'h-9 gap-1.5 px-4 text-xs'
           : 'h-10 gap-2 px-5 text-sm'"

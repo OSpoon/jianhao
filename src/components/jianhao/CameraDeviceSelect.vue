@@ -65,7 +65,7 @@ function changeDevice(value: unknown): void {
     <SelectTrigger
       :aria-label="t('home.cameraDevice')"
       :title="selectedDeviceLabel"
-      class="h-8 w-full rounded-xl border-white/20 bg-black/20 px-3 text-xs text-white shadow-none hover:bg-black/30 focus-visible:ring-white/60 dark:bg-black/20"
+      class="h-8 w-full rounded-xl border-input bg-background px-3 text-xs text-foreground shadow-none hover:bg-accent focus-visible:ring-ring/60"
     >
       <SelectValue :placeholder="t('home.cameraDevice')" />
     </SelectTrigger>
