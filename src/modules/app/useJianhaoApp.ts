@@ -36,7 +36,8 @@ export function useJianhaoApp(
   const cameraDevices = computed(() => videoInputs.value.map(({ deviceId, label }) => ({ deviceId, label })))
   const cameraDeviceId = ref(loadCameraDeviceId())
   const cameraFrameShape = ref<CameraFrameShape>(loadCameraFrameShape())
-  const alwaysOnTop = ref(loadAlwaysOnTop())
+  // Tauri creates the window as always-on-top; apply the saved preference on mount.
+  const alwaysOnTop = ref(true)
   const postureAlertSoundEnabled = ref(loadPostureAlertSoundEnabled())
   const hasActivePostureAlert = computed(
     () => monitor.status.value === "running" && monitor.verdict.value?.alarm === true,
@@ -103,13 +104,30 @@ export function useJianhaoApp(
   }
 
   async function handleAlwaysOnTop(enabled: boolean): Promise<void> {
+    const currentWindow = getCurrentWindow()
+
     try {
-      await getCurrentWindow().setAlwaysOnTop(enabled)
+      await currentWindow.setAlwaysOnTop(enabled)
+      // The native window is the source of truth for the icon state.
       alwaysOnTop.value = enabled
       saveAlwaysOnTop(enabled)
-      windowControlFeedback.value = ""
+      try {
+        alwaysOnTop.value = await currentWindow.isAlwaysOnTop()
+      }
+      catch {
+        // Keep the requested value when the native state cannot be queried.
+      }
+      windowControlFeedback.value = alwaysOnTop.value === enabled
+        ? ""
+        : t("settings.windowControlFailed")
     }
     catch {
+      try {
+        alwaysOnTop.value = await currentWindow.isAlwaysOnTop()
+      }
+      catch {
+        // Keep the last known state when the native state cannot be queried.
+      }
       windowControlFeedback.value = t("settings.windowControlFailed")
     }
   }
@@ -151,12 +169,33 @@ export function useJianhaoApp(
     document.title = t("app.windowTitle")
 
     void (async () => {
+      const currentWindow = getCurrentWindow()
+
       try {
-        const currentWindow = getCurrentWindow()
         await currentWindow.setTitle(t("app.windowTitle"))
-        await currentWindow.setAlwaysOnTop(alwaysOnTop.value)
       }
       catch {
+        windowControlFeedback.value = t("settings.windowControlFailed")
+      }
+
+      try {
+        const preferredAlwaysOnTop = loadAlwaysOnTop()
+        await currentWindow.setAlwaysOnTop(preferredAlwaysOnTop)
+        alwaysOnTop.value = preferredAlwaysOnTop
+        try {
+          alwaysOnTop.value = await currentWindow.isAlwaysOnTop()
+        }
+        catch {
+          // Keep the value confirmed by the successful native update.
+        }
+      }
+      catch {
+        try {
+          alwaysOnTop.value = await currentWindow.isAlwaysOnTop()
+        }
+        catch {
+          // Keep the saved preference when the native state cannot be queried.
+        }
         windowControlFeedback.value = t("settings.windowControlFailed")
       }
     })()
