@@ -51,7 +51,7 @@ function handleCameraDrag(event: MouseEvent): void {
   <section
     class="group/camera relative min-h-0 overflow-hidden bg-background/75 text-white"
     :class="props.frameShape === 'circle'
-      ? 'absolute bottom-0 left-1/2 size-52.5 -translate-x-1/2 rounded-full'
+      ? 'absolute bottom-0 left-1/2 size-45 -translate-x-1/2 rounded-full'
       : 'h-full w-full rounded-[20px]'"
     :aria-label="t('home.cameraTitle')"
     @mousedown.left="handleCameraDrag"

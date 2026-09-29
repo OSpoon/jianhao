@@ -16,7 +16,7 @@
         "title": "渐好 · 坐姿提醒",
         "width": 360,
         "height": 203,
-        "minWidth": 210,
+        "minWidth": 180,
         "minHeight": 180,
         "resizable": false,
         "visible": true,

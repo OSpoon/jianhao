@@ -21,7 +21,7 @@ const windowSize = computed(() =>
   route.name === "settings"
     ? { width: 360, height: 360 }
     : appState.cameraFrameShape.value === "circle"
-      ? { width: 210, height: 210 }
+      ? { width: 180, height: 180 }
       : { width: 360, height: 210 },
 )
 let pendingWindowResize = Promise.resolve()
