@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.1.2
+
+[compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1...v0.1.2)
+
+### 🩹 Fixes
+
+- Reduce minimum circular camera preview size ([ac5ec45](https://github.com/OSpoon/jianhao/commit/ac5ec45))
+
+### 📖 Documentation
+
+- Refresh README and link project website ([66033e1](https://github.com/OSpoon/jianhao/commit/66033e1))
+- Add inspiration and acknowledgments section to README ([d5b5f33](https://github.com/OSpoon/jianhao/commit/d5b5f33))
+
+### 🎨 Styles
+
+- Adapt camera controls to light theme ([a1d528a](https://github.com/OSpoon/jianhao/commit/a1d528a))
+
+### 🤖 CI
+
+- Fix website deploy path filter ([fdedfa0](https://github.com/OSpoon/jianhao/commit/fdedfa0))
+
+### ❤️ Contributors
+
+- OSpoon ([@OSpoon](https://github.com/OSpoon))
+
 ## v0.1.1
 
 [compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.1-beta.15...v0.1.1)
