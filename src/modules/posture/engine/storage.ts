@@ -13,7 +13,7 @@ const KEYS = {
   postureAlertSound: "jianhao.posture-alert-sound.v1",
 } as const
 
-export type CameraFrameShape = "rounded" | "circle"
+export type CameraFrameShape = "rounded" | "circle" | "capsule"
 
 function read(key: string): string | null {
   try {
@@ -63,7 +63,7 @@ export function saveCameraDeviceId(deviceId: string): void {
 
 export function loadCameraFrameShape(): CameraFrameShape {
   const saved = read(KEYS.cameraFrameShape)
-  return saved === "circle" ? saved : "rounded"
+  return saved === "circle" || saved === "capsule" ? saved : "rounded"
 }
 
 export function saveCameraFrameShape(shape: CameraFrameShape): void {

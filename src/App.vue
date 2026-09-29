@@ -17,12 +17,17 @@ const isCircleCameraWindow = computed(
   () =>
     route.name !== "settings" && appState.cameraFrameShape.value === "circle",
 )
+const isCapsuleCameraWindow = computed(
+  () => route.name !== "settings" && appState.cameraFrameShape.value === "capsule",
+)
 const windowSize = computed(() =>
   route.name === "settings"
     ? { width: 360, height: 360 }
     : appState.cameraFrameShape.value === "circle"
       ? { width: 180, height: 180 }
-      : { width: 360, height: 210 },
+      : appState.cameraFrameShape.value === "capsule"
+        ? { width: 300, height: 60 }
+        : { width: 360, height: 210 },
 )
 let pendingWindowResize = Promise.resolve()
 
@@ -73,18 +78,30 @@ provide(jianhaoAppKey, appState)
         ? 'rounded-[20px] bg-background'
         : appState.cameraFrameShape.value === 'circle'
           ? 'bg-transparent'
-          : 'rounded-[20px] bg-transparent'
+          : appState.cameraFrameShape.value === 'capsule'
+            ? 'rounded-full bg-transparent'
+            : 'rounded-[20px] bg-transparent'
     "
   >
-    <UpdateProgressOverlay :is-circle-window="isCircleCameraWindow" />
+    <UpdateProgressOverlay
+      :is-circle-window="isCircleCameraWindow"
+      :is-capsule-window="isCapsuleCameraWindow"
+    />
 
     <WindowToolbar
       :logo-url="logoUrl"
       :frame-shape="appState.cameraFrameShape.value"
       :always-on-top="appState.alwaysOnTop.value"
       :window-control-feedback="appState.windowControlFeedback.value"
+      :is-monitoring="appState.isMonitoring.value"
+      :is-calibrating="appState.isCalibrating.value"
+      :is-loading="appState.monitor.status.value === 'loading'"
+      :has-baseline="appState.monitor.baseline.value !== null"
+      :start-label="appState.startLabel.value"
       @toggle-always-on-top="appState.handleAlwaysOnTop"
       @frame-shape-change="appState.handleCameraFrameShape"
+      @start="appState.handleStart"
+      @calibrate="appState.handleCalibrate"
       @minimize-window="appState.handleMinimizeWindow"
       @close-window="appState.handleCloseWindow"
     />

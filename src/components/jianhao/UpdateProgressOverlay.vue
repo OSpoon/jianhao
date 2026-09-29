@@ -5,6 +5,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue"
 
 defineProps<{
   isCircleWindow: boolean
+  isCapsuleWindow: boolean
 }>()
 
 interface UpdateProgress {
@@ -79,9 +80,12 @@ onBeforeUnmount(() => {
     :aria-valuemax="100"
     :aria-valuetext="`${updateProgressLabel}，${updateProgressDetail}`"
     class="pointer-events-none absolute inset-0 z-30 overflow-hidden text-white"
-    :class="isCircleWindow ? 'rounded-full' : 'rounded-[20px]'"
+    :class="isCircleWindow || isCapsuleWindow ? 'rounded-full' : 'rounded-[20px]'"
   >
-    <div class="absolute inset-0 bg-black/15" />
+    <div
+      class="absolute inset-0"
+      :class="isCapsuleWindow ? 'bg-transparent' : 'bg-black/15'"
+    />
     <div
       class="absolute inset-y-0 left-0 bg-linear-to-r from-brand-coral/35 to-brand-amber/25 transition-[width] duration-150"
       :class="updateProgressPercent === null ? 'w-1/3 animate-pulse' : ''"

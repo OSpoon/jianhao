@@ -49,6 +49,7 @@ const emit = defineEmits<{
       @start="emit('start')"
     />
     <CameraActionBar
+      v-if="props.frameShape !== 'capsule'"
       :is-monitoring="props.isMonitoring"
       :is-calibrating="props.isCalibrating"
       :has-baseline="props.hasBaseline"

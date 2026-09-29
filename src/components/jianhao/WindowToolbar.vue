@@ -10,11 +10,18 @@ const props = defineProps<{
   frameShape: CameraFrameShape
   alwaysOnTop: boolean
   windowControlFeedback: string
+  isMonitoring: boolean
+  isCalibrating: boolean
+  isLoading: boolean
+  hasBaseline: boolean
+  startLabel: string
 }>()
 
 const emit = defineEmits<{
   toggleAlwaysOnTop: [enabled: boolean]
   frameShapeChange: [shape: CameraFrameShape]
+  start: []
+  calibrate: []
   minimizeWindow: []
   closeWindow: []
 }>()
@@ -29,8 +36,15 @@ const isCameraView = computed(() => route.name !== "settings")
     :frame-shape="props.frameShape"
     :always-on-top="props.alwaysOnTop"
     :window-control-feedback="props.windowControlFeedback"
+    :is-monitoring="props.isMonitoring"
+    :is-calibrating="props.isCalibrating"
+    :is-loading="props.isLoading"
+    :has-baseline="props.hasBaseline"
+    :start-label="props.startLabel"
     @toggle-always-on-top="emit('toggleAlwaysOnTop', $event)"
     @frame-shape-change="emit('frameShapeChange', $event)"
+    @start="emit('start')"
+    @calibrate="emit('calibrate')"
     @close-window="emit('closeWindow')"
   />
   <SettingsWindowHeader

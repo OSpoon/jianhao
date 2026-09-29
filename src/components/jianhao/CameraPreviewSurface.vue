@@ -49,22 +49,28 @@ function handleCameraDrag(event: MouseEvent): void {
 
 <template>
   <section
-    class="group/camera relative min-h-0 overflow-hidden bg-background/75 text-white"
+    class="group/camera relative min-h-0 overflow-hidden text-white"
     :class="props.frameShape === 'circle'
-      ? 'absolute bottom-0 left-1/2 size-45 -translate-x-1/2 rounded-full'
-      : 'h-full w-full rounded-[20px]'"
+      ? 'absolute bottom-0 left-1/2 size-45 -translate-x-1/2 rounded-full bg-background/65'
+      : props.frameShape === 'capsule'
+        ? 'h-full w-full rounded-full border border-foreground/10 bg-background/65 shadow-lg backdrop-blur-xl'
+        : 'h-full w-full rounded-[20px] bg-background/65'"
     :aria-label="t('home.cameraTitle')"
     @mousedown.left="handleCameraDrag"
   >
     <video
       :ref="setVideoRef"
       class="absolute inset-0 size-full object-cover"
-      :class="{ '-scale-x-100': props.isMirrored }"
+      :class="[
+        { '-scale-x-100': props.isMirrored },
+        props.frameShape === 'capsule' ? 'hidden' : '',
+      ]"
       autoplay
       muted
       playsinline
     />
     <canvas
+      v-if="props.frameShape !== 'capsule'"
       :ref="setCanvasRef"
       class="pointer-events-none absolute inset-0 size-full object-cover"
       :class="{ '-scale-x-100': props.isMirrored }"
