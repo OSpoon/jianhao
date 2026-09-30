@@ -47,7 +47,7 @@
     "icons:generate": "node scripts/generate-icons.js"
   },
   "dependencies": {
-    "@lucide/vue": "^1.47.0",
+    "@lucide/vue": "^1.48.0",
     "@mediapipe/tasks-vision": "^1.0.1",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-log": "^2.9.2",
