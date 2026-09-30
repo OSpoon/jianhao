@@ -53,7 +53,7 @@ function handleCameraDrag(event: MouseEvent): void {
     :class="props.frameShape === 'circle'
       ? 'absolute bottom-0 left-1/2 size-45 -translate-x-1/2 rounded-full bg-background/65'
       : props.frameShape === 'capsule'
-        ? 'h-full w-full rounded-full border border-foreground/10 bg-background/65 shadow-lg backdrop-blur-xl'
+        ? 'h-full w-full rounded-full border border-foreground/10 bg-background/70'
         : 'h-full w-full rounded-[20px] bg-background/65'"
     :aria-label="t('home.cameraTitle')"
     @mousedown.left="handleCameraDrag"
