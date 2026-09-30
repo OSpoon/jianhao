@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.4
+
+[compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.3...v0.1.4)
+
+### 🎨 Styles
+
+- Adjust capsule camera preview background ([30eed7a](https://github.com/OSpoon/jianhao/commit/30eed7a))
+
+### ❤️ Contributors
+
+- OSpoon <zxin088@gmail.com>
+
 ## v0.1.3
 
 [compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.2...v0.1.3)
