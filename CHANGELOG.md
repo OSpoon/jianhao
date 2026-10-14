@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.5
+
+[compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.4...v0.1.5)
+
+### 🚀 Enhancements
+
+- Add camera preview display settings ([3231de8](https://github.com/OSpoon/jianhao/commit/3231de8))
+
+### ❤️ Contributors
+
+- OSpoon ([@OSpoon](https://github.com/OSpoon))
+
 ## v0.1.4
 
 [compare changes](https://github.com/OSpoon/jianhao/compare/v0.1.3...v0.1.4)
