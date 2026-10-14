@@ -18,7 +18,11 @@ if (!app) {
       <CameraSettingsCard
         :devices="app.cameraDevices.value"
         :camera-device-id="app.cameraDeviceId.value"
+        :camera-blurred="app.cameraBlurred.value"
+        :detection-points-visible="app.detectionPointsVisible.value"
         @camera-device-change="app.handleCameraDeviceChange"
+        @camera-blur="app.handleCameraBlur"
+        @detection-points-visible="app.handleDetectionPointsVisible"
       />
       <MonitoringSettingsCard
         :sensitivity="app.monitor.sensitivity.value"

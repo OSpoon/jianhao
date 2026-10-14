@@ -7,6 +7,8 @@ import type { Sensitivity } from "./types"
 const KEYS = {
   sensitivity: "posture-guard.sensitivity.v1",
   cameraMirrored: "posture-guard.camera-mirrored.v1",
+  cameraBlurred: "jianhao.camera-blurred.v1",
+  detectionPointsVisible: "jianhao.detection-points-visible.v1",
   cameraDeviceId: "jianhao.camera-device-id.v1",
   cameraFrameShape: "jianhao.camera-frame-shape.v1",
   alwaysOnTop: "jianhao.window-always-on-top.v1",
@@ -51,6 +53,22 @@ export function loadCameraMirrored(): boolean {
 
 export function saveCameraMirrored(enabled: boolean): void {
   write(KEYS.cameraMirrored, enabled ? "on" : "off")
+}
+
+export function loadCameraBlurred(): boolean {
+  return read(KEYS.cameraBlurred) === "on"
+}
+
+export function saveCameraBlurred(enabled: boolean): void {
+  write(KEYS.cameraBlurred, enabled ? "on" : "off")
+}
+
+export function loadDetectionPointsVisible(): boolean {
+  return read(KEYS.detectionPointsVisible) !== "off"
+}
+
+export function saveDetectionPointsVisible(visible: boolean): void {
+  write(KEYS.detectionPointsVisible, visible ? "on" : "off")
 }
 
 export function loadCameraDeviceId(): string {

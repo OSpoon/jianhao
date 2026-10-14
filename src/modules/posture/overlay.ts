@@ -18,10 +18,10 @@ export class PostureOverlay {
     this.canvas.height = height
   }
 
-  draw(metrics: FrameMetrics | null, verdict: Verdict | null): void {
+  draw(metrics: FrameMetrics | null, verdict: Verdict | null, visible = true): void {
     const { context, canvas } = this
     context.clearRect(0, 0, canvas.width, canvas.height)
-    if (!metrics)
+    if (!visible || !metrics)
       return
 
     const { leftIris, rightIris, forehead, chin, ears, shoulders } = metrics.points

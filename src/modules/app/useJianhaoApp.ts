@@ -8,14 +8,18 @@ import { i18n } from "@/i18n"
 import { usePostureLogging } from "@/modules/diagnostics/usePostureLogging"
 import {
   loadAlwaysOnTop,
+  loadCameraBlurred,
   loadCameraDeviceId,
   loadCameraFrameShape,
   loadCameraMirrored,
+  loadDetectionPointsVisible,
   loadPostureAlertSoundEnabled,
   saveAlwaysOnTop,
+  saveCameraBlurred,
   saveCameraDeviceId,
   saveCameraFrameShape,
   saveCameraMirrored,
+  saveDetectionPointsVisible,
   savePostureAlertSoundEnabled,
 } from "@/modules/posture/engine/storage"
 import { PostureOverlay } from "@/modules/posture/overlay"
@@ -32,6 +36,8 @@ export function useJianhaoApp(
   usePostureLogging(monitor)
   const t = i18n.global.t
   const cameraMirrored = ref(loadCameraMirrored())
+  const cameraBlurred = ref(loadCameraBlurred())
+  const detectionPointsVisible = ref(loadDetectionPointsVisible())
   const { devices: mediaDevices, videoInputs } = useDevicesList()
   const cameraDevices = computed(() => videoInputs.value.map(({ deviceId, label }) => ({ deviceId, label })))
   const cameraDeviceId = ref(loadCameraDeviceId())
@@ -98,6 +104,17 @@ export function useJianhaoApp(
     saveCameraMirrored(enabled)
   }
 
+  function handleCameraBlur(enabled: boolean): void {
+    cameraBlurred.value = enabled
+    saveCameraBlurred(enabled)
+  }
+
+  function handleDetectionPointsVisible(visible: boolean): void {
+    detectionPointsVisible.value = visible
+    saveDetectionPointsVisible(visible)
+    drawOverlay()
+  }
+
   function handleCameraFrameShape(shape: CameraFrameShape): void {
     cameraFrameShape.value = shape
     saveCameraFrameShape(shape)
@@ -160,7 +177,7 @@ export function useJianhaoApp(
     if (previewVideoRef.value.videoWidth > 0 && previewVideoRef.value.videoHeight > 0) {
       overlay.resize(previewVideoRef.value.videoWidth, previewVideoRef.value.videoHeight)
     }
-    overlay.draw(monitor.metrics.value, monitor.verdict.value)
+    overlay.draw(monitor.metrics.value, monitor.verdict.value, detectionPointsVisible.value)
   }
 
   useEventListener(previewVideoRef, "loadedmetadata", drawOverlay)
@@ -214,6 +231,8 @@ export function useJianhaoApp(
     monitor,
     ...presentation,
     cameraMirrored,
+    cameraBlurred,
+    detectionPointsVisible,
     cameraDevices,
     cameraDeviceId,
     cameraFrameShape,
@@ -226,6 +245,8 @@ export function useJianhaoApp(
     handleCanvasReady,
     handleCalibrate,
     handleCameraMirror,
+    handleCameraBlur,
+    handleDetectionPointsVisible,
     handleCameraFrameShape,
     handleAlwaysOnTop,
     handleMinimizeWindow,

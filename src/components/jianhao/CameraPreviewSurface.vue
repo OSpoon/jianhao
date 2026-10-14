@@ -7,6 +7,7 @@ import { useI18n } from "vue-i18n"
 const props = defineProps<{
   frameShape: CameraFrameShape
   isMirrored: boolean
+  isVideoBlurred: boolean
 }>()
 
 const emit = defineEmits<{
@@ -61,10 +62,14 @@ function handleCameraDrag(event: MouseEvent): void {
     <video
       :ref="setVideoRef"
       class="absolute inset-0 size-full object-cover"
-      :class="[
-        { '-scale-x-100': props.isMirrored },
-        props.frameShape === 'capsule' ? 'hidden' : '',
-      ]"
+      :class="{ hidden: props.frameShape === 'capsule' }"
+      :style="{
+        filter: props.isVideoBlurred ? 'blur(4px)' : undefined,
+        transform: [
+          props.isMirrored ? 'scaleX(-1)' : '',
+          props.isVideoBlurred ? 'scale(1.04)' : '',
+        ].filter(Boolean).join(' ') || undefined,
+      }"
       autoplay
       muted
       playsinline

@@ -16,6 +16,7 @@ const props = defineProps<{
   message: string
   calibrationProgress: number
   isMirrored: boolean
+  isVideoBlurred: boolean
   frameShape: CameraFrameShape
 }>()
 
@@ -32,6 +33,7 @@ const emit = defineEmits<{
   <CameraPreviewSurface
     :frame-shape="props.frameShape"
     :is-mirrored="props.isMirrored"
+    :is-video-blurred="props.isVideoBlurred"
     @video-ready="emit('videoReady', $event)"
     @canvas-ready="emit('canvasReady', $event)"
   >

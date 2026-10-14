@@ -22,6 +22,7 @@ if (!app) {
     :message="app.monitor.message.value"
     :calibration-progress="app.monitor.calibrationProgress.value"
     :is-mirrored="app.cameraMirrored.value"
+    :is-video-blurred="app.cameraBlurred.value"
     :frame-shape="app.cameraFrameShape.value"
     @start="app.handleStart"
     @calibrate="app.handleCalibrate"
