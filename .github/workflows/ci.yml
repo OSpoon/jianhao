@@ -71,7 +71,7 @@ jobs:
             librsvg2-dev
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2.9.2
+        uses: Swatinem/rust-cache@v2.9.3
         with:
           workspaces: ./src-tauri -> target
 
